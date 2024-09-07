@@ -426,6 +426,7 @@ class VolunteerForms(Base):
     availability = mapped_column(Text)
     skills = mapped_column(ARRAY(Text()))
     user_id = mapped_column(Uuid)
+    datetime = mapped_column(DateTime(True), server_default=text("now()"))
 
     event: Mapped["Events"] = relationship("Events", back_populates="volunteer_forms")
     user: Mapped[Optional["User"]] = relationship(

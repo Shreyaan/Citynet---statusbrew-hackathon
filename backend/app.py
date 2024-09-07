@@ -8,6 +8,7 @@ from fire_sensor.fire_sensor_bp import fire_sensor_bp
 from user.user_bp import user_bp
 from user_emergency.user_emergency_bp import user_emergency_bp
 from garbage_sensor.garbage_sensor_bp import garbage_sensor_bp
+from event_management.event_volunteer import volunteer_bp
 
 
 # demo '/' endpoint
@@ -42,6 +43,8 @@ app.register_blueprint(user_bp, url_prefix="/user/dashboard")
 
 # garbage collection blueprint
 app.register_blueprint(garbage_sensor_bp, url_prefix="/garbage-collection")
+
+app.register_blueprint(volunteer_bp, url_prefix="/volunteer")
 
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
 
