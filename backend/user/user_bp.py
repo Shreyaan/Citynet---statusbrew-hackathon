@@ -5,18 +5,21 @@ from config import get_db_session
 from models import User
 
 # Create a Blueprint for user routes
-user_bp = Blueprint('user_bp', __name__)
+user_bp = Blueprint("user_bp", __name__)
 
 # Route to update user tags
-@jwt_required()
-@user_bp.route('/tags', methods=['GET']) # Require JWT authentication
+
+
+@user_bp.route("/tags", methods=["GET"])  # Require JWT authentication
 def update_user_tags():
     # Retrieve the current user's ID from the session (g)
     user_id = g.user_id
 
     # Get the tags from the form request
     tags_str = request.form.get("tags")
-    tags = [tag.strip() for tag in tags_str.split(",")] if tags_str else []  # Process tags
+    tags = (
+        [tag.strip() for tag in tags_str.split(",")] if tags_str else []
+    )  # Process tags
 
     session = get_db_session()  # Get the database session
     try:

@@ -57,39 +57,36 @@ def error_response(message):
 
 def handle_bearer_auth(auth_header, g):
     """
-    Handles bearer authentication by verifying the JWT token in the request header.
+    Handles bearer authentication by extracting the user_id from the request header.
 
     Args:
-        auth_header (str): The authorization header containing the JWT token.
+        auth_header (str): The authorization header containing the user_id.
         g (object): The global object used to store data for the current request.
 
     Returns:
         object: The error response if any error occurs during authentication, otherwise None.
-
     """
-    verify_jwt_in_request(optional=True)
-    g.jwt = get_jwt()
-    if not g.jwt:
-        return error_response("Invalid JWT token")
-    g.raw_jwt = auth_header.split("Bearer")[1]
-    g.user_id = get_jwt_identity() if g.jwt else None
+    try:
+        g.user_id = auth_header.split("Bearer")[1].strip()
+        if not g.user_id:
+            return error_response("Invalid user_id")
+    except Exception:
+        return error_response("Invalid authorization header")
 
 
 @app.before_request
 def before_request():
-    # Remove the allowed_endpoints list and related checks
-
     if not request.endpoint:
         return
 
     auth_header = request.headers.get("Authorization")
     if auth_header and "Bearer" in auth_header:
-        # JWT token authentication is optional
-        handle_bearer_auth(auth_header, g)
+        # User ID authentication is optional
+        error = handle_bearer_auth(auth_header, g)
+        if error:
+            return error
     else:
-        # No authentication provided, set default values
-        g.jwt = None
-        g.raw_jwt = None
+        # No authentication provided, set default value
         g.user_id = None
 
 
