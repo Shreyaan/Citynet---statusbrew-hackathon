@@ -12,7 +12,7 @@ def receive_fire_alert():
     sensor_name = data.get('sensor_name')
     fire_hazard_level = data.get('fire_hazard_level') # 1 or 2 or 3, shows the severity of the fire hazard (1: low, 2: medium, 3: high)
     smoke_level = data.get('smoke_level') #score above 400 means potential fire
-    temp_level = data.get('temp_level') #0 means fire, 1 means no fire
+    temp_level = data.get('temp_level') #gives temrature, above 1850 means very high level of heat
 
     # Log the fire alert details
     print("Fire detected:", sensor_name, fire_hazard_level, smoke_level, temp_level)
