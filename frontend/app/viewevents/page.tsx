@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/client";
 import React, { useState, useEffect } from "react";
 import UserSidebar from "@/components/UserSidebar";
-
+import { useRouter } from "next/navigation";
 interface Event {
   id: string;
   title: string;
@@ -16,6 +16,7 @@ interface Event {
 
 function ViewEvents() {
   const [events, setEvents] = useState<Event[]>([]);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +64,9 @@ function ViewEvents() {
               <div
                 key={event.id}
                 className="bg-gray-800 p-6 rounded-lg shadow-lg"
+                onClick={() => {
+                  router.push(`/viewevents/${event.id}`);
+                }}
               >
                 {/* Event poster */}
                 {event.poster_url ? (
