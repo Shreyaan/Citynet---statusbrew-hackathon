@@ -1,59 +1,90 @@
 // EventForm.jsx
-'use client';
-import { format } from "date-fns"
+"use client";
+import { format } from "date-fns";
 
-import { createClient } from '@/utils/supabase/client';
-import React, { useState } from 'react';
-import { BackgroundGradient } from '@/components/ui/background-gradient';
-import UserSidebar from '@/components/UserSidebar'; // Import the sidebar
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-
+import { createClient } from "@/utils/supabase/client";
+import React, { useState } from "react";
+import UserSidebar from "@/components/UserSidebar"; // Import the sidebar
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { MultiSelect } from "@/components/MultiSelect";
+import tagOptions from "@/utils/tags";
 
 function EventForm() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = React.useState<Date>()
+  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = React.useState<Date>();
 
-  const [location, setLocation] = useState('');
-  const [tags, setTags] = useState('');
+  const [location, setLocation] = useState("");
+  // const [tags, setTags] = useState("");
   const [poster, setPoster] = useState<File | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = "Title is required";
+    if (!description.trim()) newErrors.description = "Description is required";
+    if (!date) newErrors.date = "Date is required";
+    if (!location.trim()) newErrors.location = "Location is required";
+    if (selectedTags.length === 0)
+      newErrors.tags = "At least one tag is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
+    setIsLoading(true);
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('datetime', date ? date.toISOString() : '');
-    formData.append('location', location);
-    formData.append('tags', tags);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("datetime", date ? date.toISOString() : "");
+    formData.append("location", location);
+    formData.append("tags", selectedTags.join(","));
     if (poster) {
-      formData.append('poster', poster);
+      formData.append("poster", poster);
     }
 
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const client = createClient();
-    const session = await client.auth.getSession();
-    const accessToken = session.data?.session?.access_token;
+    const session = await client.auth.getUser();
+    const token = session.data?.user?.id;
 
-    const response = await fetch(`${BACKEND_URL}/events/create`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${accessToken}`
+    try {
+      const response = await fetch(`${BACKEND_URL}/events/create`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        router.push(`/viewevents/${data.event_id}`);
+      } else {
+        setErrors({ submit: "Error submitting event. Please try again." });
       }
-    });
-
-    const data = await response.json();
-    if (data.success) {
-      alert('Event submitted successfully!');
-    } else {
-      alert('Error submitting event.');
+    } catch (error) {
+      setErrors({ submit: "An unexpected error occurred. Please try again." });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,9 +102,10 @@ function EventForm() {
           before:p-[2px] before:bg-gradient-to-r before:from-purple-500 
           before:via-blue-500 before:to-green-500 before:z-[-1]"
         >
-
           <h2 className="text-white text-2xl mb-4 font-bold">Create Event</h2>
-          <p className="text-gray-400 mb-6">Deploy your new event in one click.</p>
+          <p className="text-gray-400 mb-6">
+            Deploy your new event in one click.
+          </p>
 
           {/* Title */}
           <div className="mb-4">
@@ -90,7 +122,9 @@ function EventForm() {
 
           {/* Description */}
           <div className="mb-4">
-            <label className="text-gray-400 block mb-2">Event Description</label>
+            <label className="text-gray-400 block mb-2">
+              Event Description
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -102,7 +136,9 @@ function EventForm() {
 
           {/* Date & Time */}
           <div className="mb-4">
-            <label className="text-gray-400 block mb-2">Event Date & Time</label>
+            <label className="text-gray-400 block mb-2">
+              Event Date & Time
+            </label>
             <div className="flex space-x-4">
               <Popover>
                 <PopoverTrigger asChild>
@@ -114,7 +150,7 @@ function EventForm() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -145,12 +181,12 @@ function EventForm() {
           {/* Tags */}
           <div className="mb-4">
             <label className="text-gray-400 block mb-2">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full p-3 bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
-              placeholder="Comma separated tags"
+            <MultiSelect
+              options={tagOptions}
+              selected={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Select up to 10 tags"
+              className="w-full bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
             />
           </div>
 
@@ -159,7 +195,9 @@ function EventForm() {
             <label className="text-gray-400 block mb-2">Event Poster</label>
             <input
               type="file"
-              onChange={(e) => setPoster(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) =>
+                setPoster(e.target.files ? e.target.files[0] : null)
+              }
               className="w-full text-gray-400 bg-black p-3 rounded-md focus:outline-none"
               accept="image/*"
             />
@@ -170,14 +208,16 @@ function EventForm() {
             <button
               type="button"
               className="bg-gray-800 text-gray-400 py-2 px-4 rounded-md hover:bg-gray-700 transition"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition"
+              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
+              disabled={isLoading}
             >
-              Upload
+              {isLoading ? "Uploading..." : "Upload"}
             </button>
           </div>
         </form>
