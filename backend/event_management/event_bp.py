@@ -2,7 +2,7 @@ import uuid
 from flask import Blueprint, g, jsonify, request, make_response
 from config import db, get_db_session, engine
 from datetime import datetime
-from auth.jwt_bp import jwt_required
+from flask_jwt_extended import jwt_required
 import os
 from models import User, Events
 from utils.r2 import delete_file_from_r2, generate_presigned_url, upload_file_to_r2
@@ -33,8 +33,8 @@ def generate_unique_filename(original_filename):
 
 
 # Route to create a new event
+@jwt_required()
 @event_bp.route("/create", methods=["POST"])
-@jwt_required
 def create_event():
     # Get the current user ID from the JWT token
     user_id = g.user_id
@@ -93,8 +93,8 @@ def create_event():
         session.close()
 
 
+@jwt_required()
 @event_bp.route("/getall", methods=["GET"])
-@jwt_required
 def get_user_events():
     session = get_db_session()
     try:
@@ -127,8 +127,8 @@ def get_user_events():
         session.close()
 
 
+@jwt_required()
 @event_bp.route("/<event_id>", methods=["GET"])
-@jwt_required
 def get_event(event_id):
     session = get_db_session()
     try:
@@ -161,8 +161,8 @@ def get_event(event_id):
         session.close()
 
 
+@jwt_required()
 @event_bp.route("/<event_id>", methods=["DELETE"])
-@jwt_required
 def delete_event(event_id):
     session = get_db_session()
     try:
@@ -185,8 +185,8 @@ def delete_event(event_id):
 
 
 # Route to get all events
+@jwt_required()
 @event_bp.route("/admin", methods=["GET"])
-@jwt_required
 def get_all_events():
     session = get_db_session()
     try:
@@ -217,8 +217,8 @@ def get_all_events():
 
 
 # Route to get all pending events (those with 'pending' status)
+@jwt_required()
 @event_bp.route("/admin/pending", methods=["GET"])
-@jwt_required
 def get_pending_events():
     session = get_db_session()  # Get the database session
     try:
@@ -254,8 +254,8 @@ def get_pending_events():
         session.close()
 
 
+@jwt_required()
 @event_bp.route("/admin/approve/<event_id>", methods=["POST"])
-@jwt_required
 def approve_event(event_id):
     session = get_db_session()
     try:
