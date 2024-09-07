@@ -4,7 +4,7 @@ def trigger_garbage_response(location):
     """
     Trigger an SMS alert to the authorities when the garbage bin overflows.
     """
-    emergency_contact_number = os.getenv("EMERGENCY_CONTACT_NUMBER")  # Authorities' phone number
+    emergency_contact_number = os.getenv("EMERGENCY_CONTACT_NUMBER")
 
     # Create the message text
     message_text = f"Garbage overflow detected at {location}. Kindly come to the given location and collect the garbage."

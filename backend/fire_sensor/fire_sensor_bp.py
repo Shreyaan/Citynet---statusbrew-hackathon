@@ -8,10 +8,10 @@ fire_sensor_bp = Blueprint('fire_sensor_bp', __name__)
 @fire_sensor_bp.route('/fire-detected', methods=['POST'])
 def receive_fire_alert():
     data = request.json
-    sensor_name = data.get('sensorsmoke')
-    fire_hazard_level = data.get('sensorir')
-    smoke_level = data.get('valuesmoke')
-    temp_level = data.get('valueir')
+    sensor_name = data.get('sensor_name')
+    fire_hazard_level = data.get('fire_hazard_level')
+    smoke_level = data.get('smoke_level')
+    temp_level = data.get('temp_level')
 
     # Log the fire alert details
     print("Fire detected:", sensor_name, fire_hazard_level, smoke_level, temp_level)
