@@ -21,7 +21,7 @@ def index():
     return "Hello World!"
 
 
-CORS(app, resources={r"/*": {"origins": "*"}}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # test api route

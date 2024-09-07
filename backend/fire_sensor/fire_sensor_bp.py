@@ -27,7 +27,7 @@ def receive_fire_alert():
         sensor_location = sensor.location  # Get the location of the sensor
 
         # Store emergency using the sensor's location
-        store_emergency(session, sensor_location, 'fire', sensor_id=sensor.id)
+        store_emergency(session, sensor_location, 'fire', sensor_id=sensor.sensor_name)
 
         # Store fire emergency details in the session
         store_emergency_fire_logs(session, sensor.id, fire_hazard_level, smoke_level, temp_level)
