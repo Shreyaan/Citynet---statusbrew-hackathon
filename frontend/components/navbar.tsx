@@ -1,5 +1,6 @@
 // Navbar.tsx
 import React from "react";
+import Link from "next/link";
 
 const Navbar: React.FC = () => {
   return (
@@ -10,26 +11,26 @@ const Navbar: React.FC = () => {
       {/* Links */}
       <ul className="hidden md:flex space-x-6 text-sm uppercase font-semibold">
         <li>
-          <a href="#home" className="hover:text-gray-300">
+          <Link href="#home" className="hover:text-gray-300">
             Home
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#about" className="hover:text-gray-300">
+          <Link href="#about" className="hover:text-gray-300">
             About Us
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#features" className="hover:text-gray-300">
+          <Link href="#features" className="hover:text-gray-300">
             Features
-          </a>
+          </Link>
         </li>
       </ul>
 
       {/* Login/Signup Button */}
-      <button className="px-6 py-2 border border-white rounded-full hover:bg-white hover:text-black transition">
+      <Link href="/login" className="px-6 py-2 border border-white rounded-full hover:bg-white hover:text-black transition">
         Login/SignUp
-      </button>
+      </Link>
     </nav>
   );
 };
