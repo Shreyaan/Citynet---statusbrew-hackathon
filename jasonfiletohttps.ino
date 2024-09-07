@@ -51,7 +51,7 @@ void loop() {
   float ldrVoltage = (ldrValue / 1023.0) * 3.30; // Assuming a 5V reference voltage
   float currentVoltage = (currentSensorValue / 1223.0) * referenceVoltage;
   float current = (currentVoltage * burdenResistor) / (1000*sensitivity * currentTransformerRatio);
-  float powerUsage=current*220
+  float powerUsage=current*220;
 
   Serial.print("LDR Value: ");
   Serial.print(ldrValue);
@@ -71,7 +71,7 @@ void loop() {
 
     // Prepare the JSON object
     DynamicJsonDocument jsonDoc(1024);
-    serverURL = ;
+  //  serverURL = ;
     if(smokeSensorValue>550){
     serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
     jsonDoc["sensor_name"] = "smoke";
@@ -113,8 +113,8 @@ void loop() {
       digitalWrite(ledPin4, LOW); 
     }
 
-    jsonDoc["sensor_name"] = "power01";
-    jsonDoc["usage"] = powerUsage;
+   // jsonDoc["sensor_name"] = "power01";
+   // jsonDoc["usage"] = powerUsage;
 
     String jsonData;
     serializeJson(jsonDoc, jsonData);
