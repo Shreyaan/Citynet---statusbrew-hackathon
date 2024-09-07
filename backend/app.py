@@ -2,17 +2,12 @@
 import os
 from flask_cors import CORS
 from config import app, db
-from flask import request, session, jsonify, g
+from flask import request, jsonify, g
 from event_management.event_bp import event_bp
 from fire_sensor.fire_sensor_bp import fire_sensor_bp
 from user.user_bp import user_bp
 from user_emergency.user_emergency_bp import user_emergency_bp
-from flask_jwt_extended import (
-    JWTManager,
-    get_jwt,
-    get_jwt_identity,
-    verify_jwt_in_request,
-)
+from garbage_sensor.garbage_sensor_bp import garbage_sensor_bp
 
 
 # demo '/' endpoint
@@ -45,10 +40,10 @@ app.register_blueprint(event_bp, url_prefix="/events")
 # user tags blueprint
 app.register_blueprint(user_bp, url_prefix="/user/dashboard")
 
+# garbage collection blueprint
+app.register_blueprint(garbage_sensor_bp, url_prefix="/garbage-collection")
+
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
-
-
-jwt = JWTManager(app)
 
 
 def error_response(message):
