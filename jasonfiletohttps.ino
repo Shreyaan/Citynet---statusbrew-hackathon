@@ -3,17 +3,21 @@
 #include <ArduinoJson.h>
 
 
+#define irSensorPin 27 
+
+#define smokeSensorPin 34
+
+
 const char* ssid = "Statusbrew Guest";       
 const char* password = "lifeatstatusbrew";  
 
-const char* serverURL = "https://97de-112-196-112-74.ngrok-free.app/fire-sensor/fire-detected"; 
-
-int smokeSensorPin = 34;  
+const char* serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected"; 
+ 
 
 void setup() {
   Serial.begin(115200);
-  pinMode(smokeSensorPin, INPUT);
-
+ 
+  pinMode(irSensorPin, INPUT);
 
   Serial.print("Connecting to WiFi...");
   WiFi.begin(ssid, password);
@@ -27,17 +31,28 @@ void setup() {
 void loop() {
 
   int sensorValue = analogRead(smokeSensorPin);
-  Serial.print("Smoke Sensor Value: ");
-  Serial.println(sensorValue);
+  int irsensorValue = digitalRead(irSensorPin); 
 
+
+  Serial.println(sensorValue);
+  Serial.println(irsensorValue); 
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
 
     // Prepare the JSON object
     DynamicJsonDocument jsonDoc(1024);
-    jsonDoc["sensor"] = "smoke";
-    jsonDoc["value"] = sensorValue;
+    if(sensorValue>450){
+    jsonDoc["sensor_name"] = "smoke";
+    jsonDoc["fire_hazard_level"] = 1;
+    jsonDoc["smoke_level"] = sensorValue;
+    }
+    if(irsensorValue<1){
+    jsonDoc["sensor_name"] = "smoke";
+    jsonDoc["fire_hazard_level"] = 2;
+    jsonDoc["smoke_level"] = sensorValue;
+    jsonDoc["temp_level"] = irsensorValue;
+    }
 
     String jsonData;
     serializeJson(jsonDoc, jsonData);
@@ -63,5 +78,5 @@ void loop() {
     Serial.println("Error in WiFi connection");
   }
 
-  delay(2000);  
+  delay(15000);  
 }
