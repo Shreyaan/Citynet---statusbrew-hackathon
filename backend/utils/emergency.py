@@ -13,14 +13,13 @@ def store_emergency(
     or user-filled location based on the caller.
     """
     new_emergency = EmergencyReport(
-        location=location,  # Could be sensor or user-provided location
+        location=location,
         emergency_type=emergency_type,
         user_id=user_id,
         sensor_id=sensor_id,
         timestamp=datetime.utcnow(),
     )
     session.add(new_emergency)
-    # Removed session.commit() from here to avoid committing multiple times
 
 
 def store_emergency_fire_logs(
@@ -36,7 +35,6 @@ def store_emergency_fire_logs(
         temp_level=temp_level,
     )
     session.add(new_fire_log)
-    # Removed session.commit() from here to avoid committing multiple times
 
 
 def trigger_emergency_response(
