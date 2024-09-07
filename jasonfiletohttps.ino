@@ -2,12 +2,11 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-//demo
 
-const char* ssid = "Redmi Note 8";       
-const char* password = "amritsar";  
+const char* ssid = "Statusbrew Guest";       
+const char* password = "lifeatstatusbrew";  
 
-const char* serverURL = "https://eoidviykm5r9m7x.m.pipedream.net"; 
+const char* serverURL = "https://97de-112-196-112-74.ngrok-free.app/fire-sensor/fire-detected"; 
 
 int smokeSensorPin = 34;  
 
@@ -64,5 +63,5 @@ void loop() {
     Serial.println("Error in WiFi connection");
   }
 
-  delay(10000);  
+  delay(2000);  
 }
