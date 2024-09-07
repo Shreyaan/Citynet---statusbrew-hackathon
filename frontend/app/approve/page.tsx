@@ -25,6 +25,8 @@ function Approve() {
       const session = await client.auth.getSession();
       const accessToken = session.data?.session?.access_token;
 
+      console.log(accessToken);
+
       const response = await fetch(`${BACKEND_URL}/events/admin`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,

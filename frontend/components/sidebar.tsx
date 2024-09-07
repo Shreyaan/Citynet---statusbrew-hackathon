@@ -1,7 +1,6 @@
 // Sidebar.jsx
 import React, { useState } from "react";
 import { FiUser, FiCheckCircle, FiLogOut } from "react-icons/fi";
-import  Image  from "next/image";
 
 const Sidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -17,10 +16,12 @@ const Sidebar = () => {
       {/* Logo Section */}
       <div className="flex items-center space-x-2">
         <div className="bg-white rounded-full p-2">
-          <Image
+          <img
             src="https://via.placeholder.com/40" // Replace this with your logo
             alt="Logo"
             className="rounded-full"
+            width={40}
+            height={40}
           />
         </div>
         {isHovered && <span className="text-white font-bold">City Net</span>}
@@ -50,10 +51,12 @@ const Sidebar = () => {
 
       {/* User Profile Section */}
       <div className="flex items-center space-x-2">
-        <Image
+        <img
           src="https://via.placeholder.com/40" // Replace this with your avatar image
           alt="User"
           className="rounded-full"
+          width={40}
+          height={40}
         />
         {isHovered && <span className="text-white">Sahil Chabra</span>}
       </div>
