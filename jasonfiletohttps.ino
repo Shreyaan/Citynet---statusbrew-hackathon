@@ -4,14 +4,19 @@
 
 
 #define irSensorPin 27 
-
+#define thermoresistorPin 35
 #define smokeSensorPin 34
-
+#define ldrPin 32  
+#define currentPin 33  
+const float referenceVoltage = 3.3;
+const float burdenResistor = 10.0; // Burden resistor value in ohms
+const float currentTransformerRatio = 1000.0; // CT ratio (turns ratio of the transformer)
+const float sensitivity = 0.1;
 
 const char* ssid = "Statusbrew Guest";       
 const char* password = "lifeatstatusbrew";  
 
-const char* serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected"; 
+const char* serverURL; 
  
 
 void setup() {
@@ -29,30 +34,64 @@ void setup() {
 }
 
 void loop() {
+  int currentSensorValue = analogRead(currentPin);
+  int smokeSensorValue = analogRead(smokeSensorPin);
+  int irSensorValue = digitalRead(irSensorPin); 
+  int thermoResistorValue = analogRead(thermoresistorPin);
+  int ldrValue = analogRead(ldrPin);
 
-  int sensorValue = analogRead(smokeSensorPin);
-  int irsensorValue = digitalRead(irSensorPin); 
+  float ldrVoltage = (ldrValue / 1023.0) * 3.30; // Assuming a 5V reference voltage
+  float currentVoltage = (currentSensorValue / 1223.0) * referenceVoltage;
+  float current = (currentVoltage * burdenResistor) / (1000*sensitivity * currentTransformerRatio);
+  float powerUsage=current*220
 
-
-  Serial.println(sensorValue);
-  Serial.println(irsensorValue); 
+  Serial.print("LDR Value: ");
+  Serial.print(ldrValue);
+  Serial.print("ldrVoltage: ");
+  Serial.println(ldrVoltage);
+  Serial.print("smokeSensorValue: "); 
+  Serial.println(smokeSensorValue);
+  Serial.print("irSensorValue: ");
+  Serial.println(irSensorValue);
+  Serial.print("thermoResistorValue: ");
+  Serial.println(thermoResistorValue);
+  Serial.print("Current: ");
+  Serial.println(current);
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
 
     // Prepare the JSON object
     DynamicJsonDocument jsonDoc(1024);
-    if(sensorValue>450){
+    serverURL = ;
+    if(smokeSensorValue>450){
+    serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
     jsonDoc["sensor_name"] = "smoke";
     jsonDoc["fire_hazard_level"] = 1;
-    jsonDoc["smoke_level"] = sensorValue;
+    jsonDoc["smoke_level"] = smokeSensorValue;
+    jsonDoc["temp_level"] = thermoResistorValue;
     }
-    if(irsensorValue<1){
+    if(irSensorValue<1){
+    serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
+    jsonDoc["sensor_name"] = "smoke";
+    jsonDoc["fire_hazard_level"] = 3;
+    jsonDoc["smoke_level"] = smokeSensorValue;
+    jsonDoc["temp_level"] = thermoResistorValue;
+    }
+    if(thermoResistorValue>1850){
+    serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
     jsonDoc["sensor_name"] = "smoke";
     jsonDoc["fire_hazard_level"] = 2;
-    jsonDoc["smoke_level"] = sensorValue;
-    jsonDoc["temp_level"] = irsensorValue;
+    jsonDoc["smoke_level"] = smokeSensorValue;
+    jsonDoc["temp_level"] = thermoResistorValue;
     }
+    if(ldrVoltage<250){
+      serverURL = "https://pleasant-mullet-unified.ngrok-free.app/garbage-collection/garbage-overflow";
+      jsonDoc["sensor_name"] = "garbage01";
+      
+    }
+    jsonDoc["sensor_name"] = "power01";
+    jsonDoc["usage"] = powerUsage;
 
     String jsonData;
     serializeJson(jsonDoc, jsonData);
@@ -78,5 +117,5 @@ void loop() {
     Serial.println("Error in WiFi connection");
   }
 
-  delay(15000);  
+  delay(200);  
 }
