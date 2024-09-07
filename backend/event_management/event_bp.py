@@ -189,30 +189,31 @@ def delete_event(event_id):
 def get_all_events():
     session = get_db_session()
     try:
-        # Query all events from the database
         events = session.query(Events).all()
-
-        # Create a list of event dictionaries for the response
         events_list = [
             {
-                "id": str(event.id),  # Convert UUID to string
+                "id": str(event.id),
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime.isoformat(),  # Convert datetime to ISO format string
+                "datetime": event.datetime.isoformat(),
                 "location": event.location,
                 "tags": event.tags,
-                "poster_filename": event.poster_filename,
-                "user_id": str(event.user_id),  # Convert UUID to string
+                "poster_url": (
+                    generate_presigned_url(event.poster_filename)
+                    if event.poster_filename
+                    else None
+                ),
+                "user_id": str(event.user_id),
                 "approval_status": event.approval_status,
             }
             for event in events
         ]
-        return jsonify(events_list), 200  # Return the list of events as JSON
+        return jsonify(events_list), 200
     except Exception as e:
-        session.rollback()  # Rollback in case of an error
-        return jsonify({"error": str(e)}), 500  # Return an error response
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
     finally:
-        session.close()  # Close the session
+        session.close()
 
 
 # Route to get all pending events (those with 'pending' status)
@@ -220,14 +221,11 @@ def get_all_events():
 
 @event_bp.route("/admin/pending", methods=["GET"])
 def get_pending_events():
-    session = get_db_session()  # Get the database session
+    session = get_db_session()
     try:
-        # Query for events with the 'pending' status
         pending_events = (
             session.query(Events).filter_by(approval_status="pending").all()
         )
-
-        # Create a list of event dictionaries for the response
         events_list = [
             {
                 "id": event.id,
@@ -246,10 +244,10 @@ def get_pending_events():
             for event in pending_events
         ]
 
-        return jsonify(events_list), 200  # Return the list of pending events
+        return jsonify(events_list), 200
     except Exception as e:
-        session.rollback()  # Rollback in case of an error
-        return jsonify({"error": str(e)}), 500  # Return an error response
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
     finally:
         session.close()
 
@@ -275,6 +273,25 @@ def approve_event(event_id):
         session.commit()
 
         return jsonify({"message": "Event approved successfully"}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@event_bp.route("/admin/reject/<event_id>", methods=["POST"])
+def reject_event(event_id):
+    session = get_db_session()
+    try:
+        event = session.query(Events).get(event_id)
+        if not event:
+            return jsonify({"error": "Event not found"}), 404
+
+        event.approval_status = "rejected"
+        session.commit()
+
+        return jsonify({"message": "Event rejected successfully"}), 200
     except Exception as e:
         session.rollback()
         return jsonify({"error": str(e)}), 500
