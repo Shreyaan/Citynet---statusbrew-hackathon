@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/client";
 import React, { useState, useEffect } from "react";
 import UserSidebar from "@/components/UserSidebar";
+import  Image  from "next/image";
 
 interface Event {
   id: string;
@@ -55,7 +56,7 @@ function ViewEvents() {
               >
                 {/* Event poster */}
                 {event.poster_filename ? (
-                  <img
+                  <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/posters/${event.poster_filename}`}
                     alt={event.title}
                     className="rounded-lg w-full mb-4 object-cover h-48"

@@ -1,6 +1,7 @@
 // Sidebar.jsx
 import React, { useState } from "react";
 import { FiUser, FiCalendar, FiAlertTriangle, FiLogOut } from "react-icons/fi";
+import Image from "next/image";
 
 const UserSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -17,7 +18,7 @@ const UserSidebar = () => {
         <div className="bg-white rounded-full p-2">
           {/* todo- use supabase providfed url */}
 
-          <img
+          <Image
             src="https://via.placeholder.com/40"
             alt="Logo"
             className="rounded-full"
@@ -71,7 +72,7 @@ const UserSidebar = () => {
       <div className="flex items-center space-x-2">
         {/* todo- use supabase providfed url */}
 
-        <img
+        <Image
           src="https://via.placeholder.com/40"
           alt="User"
           className="rounded-full"

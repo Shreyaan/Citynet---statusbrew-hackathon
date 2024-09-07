@@ -4,7 +4,6 @@ import { format } from "date-fns";
 
 import { createClient } from "@/utils/supabase/client";
 import React, { useState } from "react";
-import { BackgroundGradient } from "@/components/ui/background-gradient";
 import UserSidebar from "@/components/UserSidebar"; // Import the sidebar
 import {
   Popover,
