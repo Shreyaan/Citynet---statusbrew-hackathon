@@ -13,8 +13,9 @@ event_bp = Blueprint("event_bp", __name__)
 
 
 # Test API endpoint to ensure the JWT authentication is working
+
+
 @event_bp.route("/api/test_event", methods=["GET"])
-@jwt_required
 def feature_route():
     # Return a simple JSON response
     return (
@@ -92,12 +93,13 @@ def create_event():
         session.close()
 
 
-@event_bp.route("/", methods=["GET"])
+@event_bp.route("/getall", methods=["GET"])
 @jwt_required
 def get_user_events():
     session = get_db_session()
     try:
         user_id = g.user_id
+        print(user_id)
         events = session.query(Events).filter_by(approval_status="approved").all()
         events_list = [
             {
@@ -125,7 +127,8 @@ def get_user_events():
         session.close()
 
 
-@event_bp.route("/event/<event_id>", methods=["GET"])
+@event_bp.route("/<event_id>", methods=["GET"])
+@jwt_required
 def get_event(event_id):
     session = get_db_session()
     try:
@@ -158,7 +161,8 @@ def get_event(event_id):
         session.close()
 
 
-@event_bp.route("/event/<event_id>", methods=["DELETE"])
+@event_bp.route("/<event_id>", methods=["DELETE"])
+@jwt_required
 def delete_event(event_id):
     session = get_db_session()
     try:
@@ -181,8 +185,8 @@ def delete_event(event_id):
 
 
 # Route to get all events
-@jwt_required
 @event_bp.route("/admin", methods=["GET"])
+@jwt_required
 def get_all_events():
     session = get_db_session()
     try:
@@ -213,8 +217,8 @@ def get_all_events():
 
 
 # Route to get all pending events (those with 'pending' status)
-@jwt_required
 @event_bp.route("/admin/pending", methods=["GET"])
+@jwt_required
 def get_pending_events():
     session = get_db_session()  # Get the database session
     try:
@@ -250,8 +254,8 @@ def get_pending_events():
         session.close()
 
 
-@jwt_required
 @event_bp.route("/admin/approve/<event_id>", methods=["POST"])
+@jwt_required
 def approve_event(event_id):
     session = get_db_session()
     try:
