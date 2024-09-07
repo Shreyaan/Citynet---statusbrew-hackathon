@@ -43,7 +43,7 @@ const UserSidebar = () => {
                 </div>
 
                 <SidebarLink icon={<FiCalendar />} label="Parking" isHovered={isHovered} />
-                <SidebarLink icon={<FiAlertTriangle />} label="Emergency Report" isHovered={isHovered} />
+                <SidebarLink href="/emergencyreport" icon={<FiAlertTriangle />} label="Emergency Report" isHovered={isHovered} />
                 <SidebarLink icon={<FiLogOut />} label="Logout" isHovered={isHovered} />
             </nav>
 
@@ -60,11 +60,21 @@ const UserSidebar = () => {
 };
 
 // SidebarLink Component
-const SidebarLink = ({ icon, label, isHovered }: { icon: React.ReactNode; label: string; isHovered: boolean }) => {
-    return (
-        <div className={`flex items-center space-x-4 p-2 rounded-lg text-white hover:bg-gray-700 transition-transform duration-300 ${isHovered ? 'pl-4' : 'pl-0'}`}>
+const SidebarLink = ({ icon, label, isHovered, href }: { icon: React.ReactNode; label: string; isHovered: boolean; href?: string }) => {
+    const content = (
+        <>
             <div className="text-2xl">{icon}</div>
             {isHovered && <span className="text-base">{label}</span>}
+        </>
+    );
+
+    return href ? (
+        <a href={href} className={`flex items-center space-x-4 p-2 rounded-lg text-white hover:bg-gray-700 transition-transform duration-300 ${isHovered ? 'pl-4' : 'pl-0'}`}>
+            {content}
+        </a>
+    ) : (
+        <div className={`flex items-center space-x-4 p-2 rounded-lg text-white hover:bg-gray-700 transition-transform duration-300 ${isHovered ? 'pl-4' : 'pl-0'}`}>
+            {content}
         </div>
     );
 };
