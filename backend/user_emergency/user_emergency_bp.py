@@ -6,11 +6,14 @@ from config import get_db_session
 from utils.emergency import store_emergency, trigger_emergency_response
 
 # Define the Blueprint for user emergency reports
-user_emergency_bp = Blueprint('user_emergency_bp', __name__)
+user_emergency_bp = Blueprint("user_emergency_bp", __name__)
 
 # Route to handle emergency reports submitted by authenticated users
-@jwt_required()
-@user_emergency_bp.route('/report', methods=['POST'])  # Ensure JWT authentication is required for this route
+
+
+@user_emergency_bp.route(
+    "/report", methods=["POST"]
+)  # Ensure JWT authentication is required for this route
 def report_emergency():
     try:
         # Validate and convert user_id to UUID from JWT session
@@ -22,8 +25,8 @@ def report_emergency():
 
     # Parse the request data
     data = request.json
-    emergency_type = data.get('emergency_type')  # Type of emergency (e.g., fire, flood)
-    location = data.get('location')  # User-provided location for the emergency
+    emergency_type = data.get("emergency_type")  # Type of emergency (e.g., fire, flood)
+    location = data.get("location")  # User-provided location for the emergency
 
     session = get_db_session()
     try:
@@ -37,7 +40,9 @@ def report_emergency():
         session.commit()
 
         # Return a success response
-        return make_response(jsonify({"message": "Emergency reported and response triggered."}), 201)
+        return make_response(
+            jsonify({"message": "Emergency reported and response triggered."}), 201
+        )
     except Exception as e:
         # Rollback the transaction in case of an error
         session.rollback()

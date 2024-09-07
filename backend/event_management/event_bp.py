@@ -33,7 +33,8 @@ def generate_unique_filename(original_filename):
 
 
 # Route to create a new event
-@jwt_required()
+
+
 @event_bp.route("/create", methods=["POST"])
 def create_event():
     # Get the current user ID from the JWT token
@@ -93,7 +94,6 @@ def create_event():
         session.close()
 
 
-@jwt_required()
 @event_bp.route("/getall", methods=["GET"])
 def get_user_events():
     session = get_db_session()
@@ -127,7 +127,6 @@ def get_user_events():
         session.close()
 
 
-@jwt_required()
 @event_bp.route("/<event_id>", methods=["GET"])
 def get_event(event_id):
     session = get_db_session()
@@ -161,7 +160,6 @@ def get_event(event_id):
         session.close()
 
 
-@jwt_required()
 @event_bp.route("/<event_id>", methods=["DELETE"])
 def delete_event(event_id):
     session = get_db_session()
@@ -185,7 +183,8 @@ def delete_event(event_id):
 
 
 # Route to get all events
-@jwt_required()
+
+
 @event_bp.route("/admin", methods=["GET"])
 def get_all_events():
     session = get_db_session()
@@ -217,7 +216,8 @@ def get_all_events():
 
 
 # Route to get all pending events (those with 'pending' status)
-@jwt_required()
+
+
 @event_bp.route("/admin/pending", methods=["GET"])
 def get_pending_events():
     session = get_db_session()  # Get the database session
@@ -254,7 +254,6 @@ def get_pending_events():
         session.close()
 
 
-@jwt_required()
 @event_bp.route("/admin/approve/<event_id>", methods=["POST"])
 def approve_event(event_id):
     session = get_db_session()
