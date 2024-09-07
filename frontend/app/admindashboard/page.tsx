@@ -7,7 +7,7 @@ const HomePage = () => {
     <div>
       <Sidebar />
     </div>
-  )
-}
+  );
+};
 
 export default HomePage;
