@@ -9,6 +9,8 @@ from user.user_bp import user_bp
 from user_emergency.user_emergency_bp import user_emergency_bp
 from garbage_sensor.garbage_sensor_bp import garbage_sensor_bp
 from energy_usage.energy_usage_bp import energy_usage_bp
+from event_management.event_volunteer import volunteer_bp
+
 
 # demo '/' endpoint
 @app.route("/", methods=["GET"])
@@ -45,6 +47,7 @@ app.register_blueprint(garbage_sensor_bp, url_prefix="/garbage-collection")
 
 # energy usage blueprint
 app.register_blueprint(energy_usage_bp, url_prefix="/energy-usage")
+app.register_blueprint(volunteer_bp, url_prefix="/volunteer")
 
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY")
 

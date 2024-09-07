@@ -106,7 +106,7 @@ def get_user_events():
                 "id": event.id,
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime,
+                "datetime": event.datetime.isoformat(),  # Convert to ISO format string
                 "location": event.location,
                 "tags": event.tags,
                 "poster_url": (
@@ -139,7 +139,7 @@ def get_event(event_id):
             "id": event.id,
             "title": event.title,
             "description": event.description,
-            "datetime": event.datetime,
+            "datetime": event.datetime.isoformat(),  # Convert to ISO format string
             "location": event.location,
             "tags": event.tags,
             "poster_url": (
@@ -231,7 +231,7 @@ def get_pending_events():
                 "id": event.id,
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime,
+                "datetime": event.datetime.isoformat(),  # Changed from 'date' to 'datetime' and added isoformat()
                 "location": event.location,
                 "tags": event.tags,
                 "poster_url": (
