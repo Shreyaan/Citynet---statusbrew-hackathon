@@ -122,86 +122,104 @@ function ProfilePage() {
   return (
     <div className="flex min-h-screen bg-black">
       <UserSidebar />
-      <div className="flex-grow flex items-center justify-center p-6">
-        <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-lg">
-          <h2 className="text-white text-2xl mb-4 font-bold">User Profile</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="text-gray-400 block mb-2">Email</label>
-              <Input
-                value={profile.email}
-                disabled
-                className="bg-black text-gray-300"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="text-gray-400 block mb-2">Name</label>
-              <Input
-                value={profile.name || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, name: e.target.value })
-                }
-                disabled={!isEditing}
-                className="bg-black text-gray-300"
-              />
-              {errors.name && (
-                <p className="text-red-500 mt-1">{errors.name}</p>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="text-gray-400 block mb-2">Phone Number</label>
-              <Input
-                value={profile.phone_number || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, phone_number: e.target.value })
-                }
-                disabled={!isEditing}
-                className="bg-black text-gray-300"
-              />
-              {errors.phone_number && (
-                <p className="text-red-500 mt-1">{errors.phone_number}</p>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="text-gray-400 block mb-2">Tags</label>
-              <MultiSelect
-                options={tagOptions}
-                selected={profile.tags}
-                onChange={(tags) => setProfile({ ...profile, tags })}
-                placeholder="Select tags"
-                className="bg-black text-gray-300"
-              />
-              {errors.tags && (
-                <p className="text-red-500 mt-1">{errors.tags}</p>
-              )}
-            </div>
-            {isEditing ? (
-              <div className="flex justify-between">
-                <Button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="bg-gray-800 text-gray-400"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-white text-black"
-                >
-                  {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
+      <div className="flex-grow p-6">
+        <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
+          <h2 className="text-white text-3xl mb-6 font-bold">User Profile</h2>
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Left column: User info */}
+            <div className="flex-1">
+              <img src="/default-avatar.png" alt="Profile" className="w-32 h-32 rounded-full mb-4" />
+              <h3 className="text-white text-xl font-semibold mb-2">{profile.name || "User"}</h3>
+              <p className="text-gray-400 mb-1">{profile.email}</p>
+              <p className="text-gray-400 mb-4">{profile.phone_number || "No phone number"}</p>
+              <div className="flex flex-wrap gap-2">
+                {profile.tags.map(tag => (
+                  <span key={tag} className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm">{tag}</span>
+                ))}
               </div>
-            ) : (
-              <Button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="w-full bg-white text-black"
-              >
-                Edit Profile
-              </Button>
-            )}
-          </form>
+            </div>
+            
+            {/* Right column: Editable form */}
+            <div className="flex-1">
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label className="text-gray-400 block mb-2">Email</label>
+                  <Input
+                    value={profile.email}
+                    disabled
+                    className="bg-black text-gray-300"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="text-gray-400 block mb-2">Name</label>
+                  <Input
+                    value={profile.name || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, name: e.target.value })
+                    }
+                    disabled={!isEditing}
+                    className="bg-black text-gray-300"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 mt-1">{errors.name}</p>
+                  )}
+                </div>
+                <div className="mb-4">
+                  <label className="text-gray-400 block mb-2">Phone Number</label>
+                  <Input
+                    value={profile.phone_number || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, phone_number: e.target.value })
+                    }
+                    disabled={!isEditing}
+                    className="bg-black text-gray-300"
+                  />
+                  {errors.phone_number && (
+                    <p className="text-red-500 mt-1">{errors.phone_number}</p>
+                  )}
+                </div>
+                <div className="mb-4">
+                  <label className="text-gray-400 block mb-2">Tags</label>
+                  <MultiSelect
+                    options={tagOptions}
+                    selected={profile.tags}
+                    onChange={(tags) => setProfile({ ...profile, tags })}
+                    placeholder="Select tags"
+                    className="bg-black text-gray-300"
+                  />
+                  {errors.tags && (
+                    <p className="text-red-500 mt-1">{errors.tags}</p>
+                  )}
+                </div>
+                {isEditing ? (
+                  <div className="flex justify-between mt-4">
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="bg-gray-800 text-gray-400"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-white text-black"
+                    >
+                      {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="w-full bg-white text-black mt-4"
+                  >
+                    Edit Profile
+                  </Button>
+                )}
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>

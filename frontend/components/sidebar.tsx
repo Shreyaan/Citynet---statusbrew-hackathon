@@ -42,7 +42,7 @@ const Sidebar = () => {
           isHovered={isHovered}
         />
         <SidebarLink
-          href="/logout"
+          href="/home"
           icon={<FiLogOut />}
           label="Logout"
           isHovered={isHovered}

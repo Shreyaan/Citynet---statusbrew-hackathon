@@ -1,7 +1,7 @@
 // FeatureSection.tsx
 import React from "react";
 import Image from "next/image";
-import EventManagementImage from "../public/file.png"; // Replace with actual path
+import EventManagementImage from "../public/4.png"; // Replace with actual path
 
 const FeatureSection: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import EmergencyImage from "@/public/fire.png"; // Ensure this path is correct
+import EmergencyImage from "@/public/2.png"; // Ensure this path is correct
 
 const FeatureTwo: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import EventManagementImage from "../public/garbage.png";
+import EventManagementImage from "../public/1.png";
 
 const FeatureThree: React.FC = () => {
   return (

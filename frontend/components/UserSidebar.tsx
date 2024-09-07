@@ -7,10 +7,10 @@ const UserSidebar = () => {
   const [isEventsHovered, setIsEventsHovered] = useState(false); // State for hovering over Events link
 
   return (
-    <div
+    <div 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`bg-gray-800 h-screen flex flex-col justify-between p-4 ${isHovered ? "w-64" : "w-20"} transition-all duration-300`}
+      className={`bg-gray-800 h-screen flex flex-col justify-between p-4 ${isHovered ? "w-64" : "w-20"} transition-all duration-300`}  
     >
       {/* Logo Section */}
       <div className="flex items-center space-x-2">
@@ -32,7 +32,7 @@ const UserSidebar = () => {
 
       {/* Links Section */}
       <nav className="flex flex-col space-y-4">
-        <SidebarLink icon={<FiUser />} label="Profile" isHovered={isHovered} />
+        <SidebarLink href="/profile" icon={<FiUser />} label="Profile" isHovered={isHovered} />
 
         {/* Events link with sub-links */}
         <div
@@ -66,7 +66,12 @@ const UserSidebar = () => {
           label="Emergency Report"
           isHovered={isHovered}
         />
-        <SidebarLink icon={<FiLogOut />} label="Logout" isHovered={isHovered} />
+        <SidebarLink
+          href="/home"
+          icon={<FiLogOut />}
+          label="Logout"
+          isHovered={isHovered}
+        />
       </nav>
 
       {/* User Profile Section */}

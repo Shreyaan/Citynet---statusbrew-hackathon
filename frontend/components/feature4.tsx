@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import EmergencyImage from "../public/elec_bill.png";
+import EmergencyImage from "../public/3.png";
 
 const FeatureFour: React.FC = () => {
   return (
