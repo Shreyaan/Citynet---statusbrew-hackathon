@@ -1,19 +1,104 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserSidebar from "@/components/UserSidebar";
 import { motion } from "framer-motion"; // For cool animations
+import { createClient } from "@/utils/supabase/client";
 
 function EmergencyReport() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [emergencyType, setEmergencyType] = useState("fire"); // Default to 'fire'
+  const [emergencyType, setEmergencyType] = useState("");
+  const [emergencyTypes, setEmergencyTypes] = useState([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      const client = createClient();
+      const session = await client.auth.getUser();
+      const token = session.data?.user?.id;
+      setAccessToken(token || null);
+    };
+
+    fetchAccessToken();
+  }, []);
+
+  useEffect(() => {
+    const fetchEmergencyTypes = async () => {
+      if (!accessToken) return;
+
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      try {
+        const response = await fetch(`${BACKEND_URL}/user-emergency/types`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await response.json();
+        setEmergencyTypes(data);
+        if (data.length > 0) setEmergencyType(data[0]);
+      } catch (error) {
+        console.error("Error fetching emergency types:", error);
+      }
+    };
+
+    fetchEmergencyTypes();
+  }, [accessToken]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!accessToken) return;
+
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      try {
+        const response = await fetch(`${BACKEND_URL}/user/dashboard/profile`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await response.json();
+        if (data.name) {
+          setName(data.name);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [accessToken]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic (e.g., send data to the backend)
-    console.log({ name, location, emergencyType });
-    alert("Emergency report submitted successfully!");
+    if (!accessToken) return;
+    setIsSubmitting(true);
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    try {
+      const response = await fetch(`${BACKEND_URL}/user-emergency/report`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ name, location, emergencyType }),
+      });
+
+      if (response.ok) {
+        alert("Emergency report submitted successfully!");
+        setName("");
+        setLocation("");
+        setEmergencyType(emergencyTypes[0] || "");
+      } else {
+        alert("Failed to submit emergency report. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting emergency report:", error);
+      alert("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -89,9 +174,11 @@ function EmergencyReport() {
               className="w-full p-3 bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
               required
             >
-              <option value="fire">Fire</option>
-              <option value="medical">Medical</option>
-              <option value="crime">Crime</option>
+              {emergencyTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
           </motion.div>
 
@@ -104,9 +191,10 @@ function EmergencyReport() {
           >
             <button
               type="submit"
-              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition"
+              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition disabled:opacity-50"
+              disabled={isSubmitting}
             >
-              Send
+              {isSubmitting ? "Sending..." : "Send"}
             </button>
           </motion.div>
         </motion.form>
