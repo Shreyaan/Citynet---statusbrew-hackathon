@@ -21,7 +21,7 @@ def index():
     return "Hello World!"
 
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}}})
 
 
 # test api route
@@ -77,34 +77,20 @@ def handle_bearer_auth(auth_header, g):
 
 @app.before_request
 def before_request():
-    # set up allowed endpoints list
-    allowed_endpoints = [
-        "/",
-        "/api/test",
-        "/events/api/test_event",
-        "/events/create",
-        "/events/getall",
-        "/user/dashboard/api/test_user",
-        "/user/dashboard/getall",
-        "/user/dashboard/create",
-    ]
-
-    if request.endpoint and request.endpoint.startswith("api"):
-        allowed_endpoints.append(request.endpoint)
+    # Remove the allowed_endpoints list and related checks
 
     if not request.endpoint:
         return
 
-    if request.endpoint not in allowed_endpoints and request.method != "OPTIONS":
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            return error_response("Missing Authorization header")
-
-        if "Bearer" in auth_header:
-            # used for JWT token authentication in Frontend
-            return handle_bearer_auth(auth_header, g)
-
-        return error_response("Unsupported authentication method")
+    auth_header = request.headers.get("Authorization")
+    if auth_header and "Bearer" in auth_header:
+        # JWT token authentication is optional
+        handle_bearer_auth(auth_header, g)
+    else:
+        # No authentication provided, set default values
+        g.jwt = None
+        g.raw_jwt = None
+        g.user_id = None
 
 
 # run the app
