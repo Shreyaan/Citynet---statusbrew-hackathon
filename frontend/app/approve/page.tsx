@@ -23,8 +23,8 @@ function Approve() {
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
       const client = createClient();
-      const session = await client.auth.getSession();
-      const token = session.data?.session?.access_token;
+      const session = await client.auth.getUser();
+      const token = session.data?.user?.id;
       setAccessToken(token || null);
 
       console.log(accessToken);

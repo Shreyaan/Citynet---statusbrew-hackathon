@@ -1,6 +1,7 @@
 // EventForm.jsx
 "use client";
 import { format } from "date-fns";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 import { createClient } from "@/utils/supabase/client";
 import React, { useState } from "react";
@@ -23,8 +24,22 @@ function EventForm() {
   const [date, setDate] = React.useState<Date>();
 
   const [location, setLocation] = useState("");
-  const [tags, setTags] = useState("");
+  // const [tags, setTags] = useState("");
   const [poster, setPoster] = useState<File | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const tagOptions = [
+    "Music",
+    "Art",
+    "Technology",
+    "Sports",
+    "Food",
+    "Fashion",
+    "Education",
+    "Business",
+    "Health",
+    "Entertainment",
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +49,7 @@ function EventForm() {
     formData.append("description", description);
     formData.append("datetime", date ? date.toISOString() : "");
     formData.append("location", location);
-    formData.append("tags", tags);
+    formData.append("tags", selectedTags.join(","));
     if (poster) {
       formData.append("poster", poster);
     }
@@ -42,14 +57,14 @@ function EventForm() {
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const client = createClient();
-    const session = await client.auth.getSession();
-    const accessToken = session.data?.session?.access_token;
+    const session = await client.auth.getUser();
+    const token = session.data?.user?.id;
 
     const response = await fetch(`${BACKEND_URL}/events/create`, {
       method: "POST",
       body: formData,
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -157,12 +172,12 @@ function EventForm() {
           {/* Tags */}
           <div className="mb-4">
             <label className="text-gray-400 block mb-2">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full p-3 bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
-              placeholder="Comma separated tags"
+            <MultiSelect
+              options={tagOptions}
+              selected={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Select up to 10 tags"
+              className="w-full bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
             />
           </div>
 
@@ -201,3 +216,66 @@ function EventForm() {
 }
 
 export default EventForm;
+
+interface MultiSelectProps {
+  options: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  placeholder: string;
+  className?: string;
+}
+
+export function MultiSelect({
+  options,
+  selected,
+  onChange,
+  placeholder,
+  className,
+}: MultiSelectProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleTagToggle = (tag: string) => {
+    const updatedTags = selected.includes(tag)
+      ? selected.filter((t) => t !== tag)
+      : [...selected, tag];
+    onChange(updatedTags.slice(0, 10)); // Limit to 10 tags
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn("w-full justify-between", className)}
+        >
+          {selected.length > 0 ? selected.join(", ") : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <div className="max-h-60 overflow-auto">
+          {options.map((option) => (
+            <div
+              key={option}
+              className={cn(
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+                selected.includes(option) && "bg-accent text-accent-foreground"
+              )}
+              onClick={() => handleTagToggle(option)}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  selected.includes(option) ? "opacity-100" : "opacity-0"
+                )}
+              />
+              {option}
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
