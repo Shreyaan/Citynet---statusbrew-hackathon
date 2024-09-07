@@ -1,11 +1,11 @@
 "use client";
 
-import UserSidebar from "@/components/UserSidebar";
+import Sidebar from "@/components/sidebar";
 
 const HomePage = () => {
   return (
     <div>
-      <UserSidebar />
+      <Sidebar />
     </div>
   )
 }
