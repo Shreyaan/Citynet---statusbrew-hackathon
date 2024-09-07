@@ -16,6 +16,7 @@ interface Event {
 
 function ViewEvents() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -25,13 +26,19 @@ function ViewEvents() {
       const session = await client.auth.getUser();
       const token = session.data?.user?.id;
 
-      const response = await fetch(`${BACKEND_URL}/events/getall`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setEvents(data);
+      try {
+        const response = await fetch(`${BACKEND_URL}/events/getall`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchEvents();
@@ -44,7 +51,11 @@ function ViewEvents() {
       {/* Main content container */}
       <div className="flex-grow p-6">
         <h1 className="text-3xl font-bold mb-6">Available Events</h1>
-        {events.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
+          </div>
+        ) : events.length === 0 ? (
           <p className="text-gray-400">No available events.</p>
         ) : (
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -58,7 +69,7 @@ function ViewEvents() {
                   <img
                     src={event.poster_url}
                     alt={event.title}
-                    className="rounded-lg w-full mb-4 object-cover h-48"
+                    className="rounded-lg w-full mb-4 object-cover h-48 cursor-pointer"
                   />
                 ) : (
                   <div className="w-full h-48 bg-gray-700 flex items-center justify-center rounded-lg mb-4">
@@ -68,7 +79,7 @@ function ViewEvents() {
 
                 {/* Event details */}
                 <h2 className="text-2xl font-semibold mb-2">{event.title}</h2>
-                <p className="text-gray-400 mb-2">{event.description}</p>
+                <p className="text-gray-400 mb-4">{event.description}</p>
                 <p className="text-gray-300 mb-2">
                   <strong>Date:</strong>{" "}
                   {new Date(event.datetime).toLocaleString()}
@@ -77,7 +88,7 @@ function ViewEvents() {
                   <strong>Location:</strong> {event.location}
                 </p>
                 {event.tags.length > 0 && (
-                  <p className="text-gray-300">
+                  <p className="text-gray-300 mb-4">
                     <strong>Tags:</strong> {event.tags.join(", ")}
                   </p>
                 )}
