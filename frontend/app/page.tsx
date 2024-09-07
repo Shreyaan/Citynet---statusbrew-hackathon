@@ -5,6 +5,9 @@ import FeatureSection from "@/components/feature";
 import FeatureTwo from "@/components/feature2";
 import FeatureThree from "@/components/feature3";
 import FeatureFour from "@/components/feature4";
+import HowToUse from "@/components/howtouse";
+import Testimonials from "@/components/testimonials";
+import Footer from "@/components/footer";
 const Home: React.FC = () => {
   return (
     <div>
@@ -38,10 +41,15 @@ const Home: React.FC = () => {
           <h1>Hello World</h1>
         </div>
       </div>
-      <FeatureSection />
-      <FeatureTwo />
-      <FeatureThree />
-      <FeatureFour />
+      <div id="features">
+        <FeatureSection />
+        <FeatureTwo />
+        <FeatureThree />
+        <FeatureFour />
+      </div>
+      <HowToUse />
+      <Testimonials />
+      <Footer />
     </div>
   );
 };
