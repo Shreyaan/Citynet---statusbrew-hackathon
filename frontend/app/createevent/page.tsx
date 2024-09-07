@@ -14,8 +14,10 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 function EventForm() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = React.useState<Date>();
@@ -52,8 +54,11 @@ function EventForm() {
     });
 
     const data = await response.json();
-    if (data.success) {
-      alert("Event submitted successfully!");
+
+    // {"event_id":7}
+
+    if (response.ok) {
+      router.push(`/viewevents/${data.event_id}`);
     } else {
       alert("Error submitting event.");
     }
@@ -117,7 +122,7 @@ function EventForm() {
                     variant={"outline"}
                     className={cn(
                       "w-[280px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground",
+                      !date && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />

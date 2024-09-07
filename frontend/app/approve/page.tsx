@@ -16,6 +16,7 @@ interface Event {
 
 function Approve() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -23,7 +24,8 @@ function Approve() {
 
       const client = createClient();
       const session = await client.auth.getSession();
-      const accessToken = session.data?.session?.access_token;
+      const token = session.data?.session?.access_token;
+      setAccessToken(token || null);
 
       console.log(accessToken);
 
@@ -33,15 +35,38 @@ function Approve() {
         },
       });
       const data = await response.json();
+      // Filter events to show only pending ones
       setEvents(data);
     };
 
     fetchEvents();
   }, []);
 
-  const approveEvent = (id: string) => {
-    // Logic to approve event goes here
-    console.log(`Approved event with id: ${id}`);
+  const approveEvent = async (id: string) => {
+    if (!accessToken) return;
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/events/admin/approve/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        // Remove the approved event from the list
+        setEvents(events.filter((event) => event.id !== id));
+        console.log(`Approved event with id: ${id}`);
+      } else {
+        console.error("Failed to approve event");
+      }
+    } catch (error) {
+      console.error("Error approving event:", error);
+    }
   };
 
   const rejectEvent = (id: string) => {
