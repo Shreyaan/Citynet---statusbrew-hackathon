@@ -27,6 +27,9 @@ function EventForm() {
   // const [tags, setTags] = useState("");
   const [poster, setPoster] = useState<File | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const tagOptions = [
     "Music",
@@ -41,9 +44,23 @@ function EventForm() {
     "Entertainment",
   ];
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = "Title is required";
+    if (!description.trim()) newErrors.description = "Description is required";
+    if (!date) newErrors.date = "Date is required";
+    if (!location.trim()) newErrors.location = "Location is required";
+    if (selectedTags.length === 0)
+      newErrors.tags = "At least one tag is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
@@ -60,22 +77,26 @@ function EventForm() {
     const session = await client.auth.getUser();
     const token = session.data?.user?.id;
 
-    const response = await fetch(`${BACKEND_URL}/events/create`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await fetch(`${BACKEND_URL}/events/create`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    // {"event_id":7}
-
-    if (response.ok) {
-      router.push(`/viewevents/${data.event_id}`);
-    } else {
-      alert("Error submitting event.");
+      if (response.ok) {
+        router.push(`/viewevents/${data.event_id}`);
+      } else {
+        setErrors({ submit: "Error submitting event. Please try again." });
+      }
+    } catch (error) {
+      setErrors({ submit: "An unexpected error occurred. Please try again." });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -199,14 +220,16 @@ function EventForm() {
             <button
               type="button"
               className="bg-gray-800 text-gray-400 py-2 px-4 rounded-md hover:bg-gray-700 transition"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition"
+              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
+              disabled={isLoading}
             >
-              Upload
+              {isLoading ? "Uploading..." : "Upload"}
             </button>
           </div>
         </form>
