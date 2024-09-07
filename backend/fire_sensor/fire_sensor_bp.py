@@ -5,14 +5,13 @@ from models import Sensor  # Assuming Sensor is in models.py
 
 fire_sensor_bp = Blueprint('fire_sensor_bp', __name__)
 
-
 @fire_sensor_bp.route('/fire-detected', methods=['POST'])
 def receive_fire_alert():
     data = request.json
-    sensor_name = data.get('sensor')
-    fire_hazard_level = data.get('level')
-    smoke_level = data.get('smoke_level')
-    temp_level = data.get('temp_level')
+    sensor_name = data.get('sensorsmoke')
+    fire_hazard_level = data.get('sensorir')
+    smoke_level = data.get('valuesmoke')
+    temp_level = data.get('valueir')
 
     # Log the fire alert details
     print("Fire detected:", sensor_name, fire_hazard_level, smoke_level, temp_level)
@@ -34,13 +33,15 @@ def receive_fire_alert():
         store_emergency_fire_logs(session, sensor.id, fire_hazard_level, smoke_level, temp_level)
 
         # Trigger fire emergency response
-        trigger_emergency_response(sensor_location, 'fire')
+        trigger_emergency_response(sensor_location, 'fire', fire_hazard_level, smoke_level, temp_level)
 
-        session.commit()
+        session.commit()  # Commit at the route level
 
         return make_response(jsonify({"message": "Fire alert received and emergency response triggered."}), 201)
     except Exception as e:
-        session.rollback()
+        session.rollback()  # Rollback in case of failure
+        print(f"Error occurred: {str(e)}")  # Print the actual error for debugging
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
+

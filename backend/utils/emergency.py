@@ -3,18 +3,25 @@ from datetime import datetime
 from utils.twillo import send_sms
 import os
 
-def store_emergency(session, sensor_location, emergency_type, user_id=None, sensor_id=None):
-    # Store emergency details in the session (adapt for session-based logic)
+def store_emergency(session, location, emergency_type, user_id=None, sensor_id=None):
+    """
+    Store emergency details in the session, location could be either sensor location
+    or user-filled location based on the caller.
+    """
     new_emergency = EmergencyReport(
-        location=sensor_location,
+        location=location,  # Could be sensor or user-provided location
         emergency_type=emergency_type,
         user_id=user_id,
         sensor_id=sensor_id,
         timestamp=datetime.utcnow()
     )
     session.add(new_emergency)
+    # Removed session.commit() from here to avoid committing multiple times
 
 def store_emergency_fire_logs(session, sensor_id, fire_hazard_level, smoke_level, temp_level):
+    """
+    Store fire emergency logs in the session with sensor details.
+    """
     new_fire_log = EmergencyFireLogs(
         sensor_id=sensor_id,
         fire_hazard_level=fire_hazard_level,
@@ -22,19 +29,23 @@ def store_emergency_fire_logs(session, sensor_id, fire_hazard_level, smoke_level
         temp_level=temp_level
     )
     session.add(new_fire_log)
+    # Removed session.commit() from here to avoid committing multiple times
 
-def trigger_emergency_response(sensor_location, emergency_type, fire_hazard_level, smoke_level, temp_level):
+def trigger_emergency_response(location, emergency_type, fire_hazard_level=None, smoke_level=None, temp_level=None):
+    """
+    Trigger emergency response by sending an SMS based on the emergency type.
+    """
     emergency_contact_number = os.getenv("EMERGENCY_CONTACT_NUMBER")
 
-    #Create the message text based on emergency type
+    # Create the message text based on emergency type
     if emergency_type == 'fire':
-        message_text = (f"Emergency response triggered for {emergency_type} at {sensor_location}, "
+        message_text = (f"Emergency response triggered for {emergency_type} at {location}, "
                         f"fire hazard level: {fire_hazard_level}, smoke level: {smoke_level}, "
-                        f"temprature: {temp_level}")
+                        f"temperature: {temp_level}")
     else:
-        message_text = f"Triggering response for {emergency_type} at {sensor_location}"
+        message_text = f"Triggering response for {emergency_type} at {location}"
 
-    #Send the SMS with the generated message
+    # Send the SMS with the generated message
     try:
         message_sid = send_sms(emergency_contact_number, message_text)
         print(f"SMS sent successfully, SID: {message_sid}")

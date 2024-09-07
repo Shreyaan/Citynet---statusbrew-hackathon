@@ -1,15 +1,15 @@
 import uuid
 from flask import Blueprint, jsonify, request, make_response, g
+from flask_jwt_extended import jwt_required
 from config import get_db_session
-from auth.jwt_bp import jwt_required
 from models import User
 
 # Create a Blueprint for user routes
 user_bp = Blueprint('user_bp', __name__)
 
 # Route to update user tags
-@user_bp.route('/tags', methods=['GET'])
-@jwt_required  # Require JWT authentication
+@jwt_required()
+@user_bp.route('/tags', methods=['GET']) # Require JWT authentication
 def update_user_tags():
     # Retrieve the current user's ID from the session (g)
     user_id = g.user_id
