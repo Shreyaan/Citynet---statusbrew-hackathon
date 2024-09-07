@@ -7,7 +7,14 @@
 #define thermoresistorPin 35
 #define smokeSensorPin 34
 #define ldrPin 32  
-#define currentPin 33  
+#define currentPin 33 
+#define buzzerPin  8
+#define ledPin1 5
+#define ledPin2 18
+#define ledPin3 19
+#define ledPin4 21
+
+
 const float referenceVoltage = 3.3;
 const float burdenResistor = 10.0; // Burden resistor value in ohms
 const float currentTransformerRatio = 1000.0; // CT ratio (turns ratio of the transformer)
@@ -23,6 +30,7 @@ void setup() {
   Serial.begin(115200);
  
   pinMode(irSensorPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
 
   Serial.print("Connecting to WiFi...");
   WiFi.begin(ssid, password);
@@ -70,6 +78,8 @@ void loop() {
     jsonDoc["fire_hazard_level"] = 1;
     jsonDoc["smoke_level"] = smokeSensorValue;
     jsonDoc["temp_level"] = thermoResistorValue;
+    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(ledPin1, LOW);
     }
     if(irSensorValue<1){
     serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
@@ -77,6 +87,8 @@ void loop() {
     jsonDoc["fire_hazard_level"] = 3;
     jsonDoc["smoke_level"] = smokeSensorValue;
     jsonDoc["temp_level"] = thermoResistorValue;
+    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(ledPin2, LOW);
     }
     if(thermoResistorValue>1850){
     serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
@@ -84,12 +96,23 @@ void loop() {
     jsonDoc["fire_hazard_level"] = 2;
     jsonDoc["smoke_level"] = smokeSensorValue;
     jsonDoc["temp_level"] = thermoResistorValue;
+    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(ledPin3, LOW);
+    }
+    if(smokeSensorValue<450 && irSensorValue==1 && thermoResistorValue<1850){
+    digitalWrite(buzzerPin, LOW);
+    digitalWrite(ledPin1, HIGH);
+    digitalWrite(ledPin2, HIGH);
+    digitalWrite(ledPin3, HIGH);
     }
     if(ldrVoltage<250){
       serverURL = "https://pleasant-mullet-unified.ngrok-free.app/garbage-collection/garbage-overflow";
       jsonDoc["sensor_name"] = "garbage01";
-      
+      digitalWrite(ledPin4, HIGH);
+    }else if(ldrVoltage>250){
+      digitalWrite(ledPin4, LOW); 
     }
+
     jsonDoc["sensor_name"] = "power01";
     jsonDoc["usage"] = powerUsage;
 
