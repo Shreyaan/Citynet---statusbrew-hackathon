@@ -231,7 +231,7 @@ def get_pending_events():
                 "id": event.id,
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime.isoformat(),  # Changed from 'date' to 'datetime' and added isoformat()
+                "datetime": event.datetime.isoformat(),
                 "location": event.location,
                 "tags": event.tags,
                 "poster_url": (
