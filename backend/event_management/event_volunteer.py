@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request, g
 from config import get_db_session
-from models import VolunteerForms, Events
+from models import User, VolunteerForms, Events
 from sqlalchemy.exc import SQLAlchemyError
 import uuid
+
+from utils.twillo import send_sms
 
 volunteer_bp = Blueprint("volunteer_bp", __name__)
 
@@ -148,12 +150,19 @@ def get_pending_applications():
 def approve_application(application_id):
     session = get_db_session()
     try:
-        application = session.query(VolunteerForms).get(application_id)
+        application: VolunteerForms = session.query(VolunteerForms).get(application_id)
         if not application:
             return jsonify({"error": "Application not found"}), 404
 
         application.status = "approved"
         session.commit()
+
+        user: User = session.query(User).get(application.user_id)
+        if user.phone_number:
+            send_sms(
+                user.phone_number,
+                f"You have been approved as a volunteer for {application.event_id}! Check it out on our website",
+            )
 
         return jsonify({"message": "Application approved successfully"}), 200
     except SQLAlchemyError as e:

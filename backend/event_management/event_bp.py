@@ -8,6 +8,8 @@ from models import User, Events
 from utils.r2 import delete_file_from_r2, generate_presigned_url, upload_file_to_r2
 from sqlalchemy import UUID, func
 
+from utils.twillo import send_sms
+
 # Blueprint for the event routes
 event_bp = Blueprint("event_bp", __name__)
 
@@ -267,7 +269,12 @@ def approve_event(event_id):
 
         # Log or process the users with matching tags
         for user in users_with_matching_tags:
-            print(f"User {user.name} ({user.email}) matches event tags")
+            print(f"User {user.name} ({user.phone_number}) matches event tags")
+            if user.phone_number:
+                send_sms(
+                    user.phone_number,
+                    f"We Found an event for you {event.title}! Check it out on our website",
+                )
 
         event.approval_status = "approved"
         session.commit()
