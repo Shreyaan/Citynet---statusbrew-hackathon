@@ -26,7 +26,7 @@ function ViewEvents() {
       const session = await client.auth.getSession();
       const accessToken = session.data?.session?.access_token;
 
-      const response = await fetch(`${BACKEND_URL}/events/`, {
+      const response = await fetch(`${BACKEND_URL}/events/getall`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
