@@ -72,7 +72,7 @@ void loop() {
     // Prepare the JSON object
     DynamicJsonDocument jsonDoc(1024);
     serverURL = ;
-    if(smokeSensorValue>450){
+    if(smokeSensorValue>550){
     serverURL = "https://pleasant-mullet-unified.ngrok-free.app/fire-sensor/fire-detected";
     jsonDoc["sensor_name"] = "smoke";
     jsonDoc["fire_hazard_level"] = 1;
@@ -99,7 +99,7 @@ void loop() {
     digitalWrite(buzzerPin, HIGH);
     digitalWrite(ledPin3, LOW);
     }
-    if(smokeSensorValue<450 && irSensorValue==1 && thermoResistorValue<1850){
+    if(smokeSensorValue<550 && irSensorValue==1 && thermoResistorValue<1850){
     digitalWrite(buzzerPin, LOW);
     digitalWrite(ledPin1, HIGH);
     digitalWrite(ledPin2, HIGH);
