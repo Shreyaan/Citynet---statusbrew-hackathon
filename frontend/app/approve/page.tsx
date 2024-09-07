@@ -1,6 +1,6 @@
-'use client'
-import { createClient } from '@/utils/supabase/client';
-import React, { useState, useEffect } from 'react';
+"use client";
+import { createClient } from "@/utils/supabase/client";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/sidebar";
 
 interface Event {
@@ -21,14 +21,14 @@ function Approve() {
     const fetchEvents = async () => {
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-      const client = createClient()
-      const session = await client.auth.getSession()
-      const accessToken = session.data?.session?.access_token
+      const client = createClient();
+      const session = await client.auth.getSession();
+      const accessToken = session.data?.session?.access_token;
 
       const response = await fetch(`${BACKEND_URL}/events/admin`, {
         headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       const data = await response.json();
       setEvents(data);
@@ -50,7 +50,7 @@ function Approve() {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex">
       <Sidebar />
-  
+
       {/* Main content container */}
       <div className="flex-grow p-6">
         {/* Event list or no events message */}
@@ -59,11 +59,15 @@ function Approve() {
         ) : (
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
             {events.map((event) => (
-              <div key={event.id} className="bg-gray-800 p-6 rounded-lg shadow-md">
+              <div
+                key={event.id}
+                className="bg-gray-800 p-6 rounded-lg shadow-md"
+              >
                 <h2 className="text-2xl font-semibold mb-2">{event.title}</h2>
                 <p className="text-gray-400 mb-4">{event.description}</p>
                 <p className="text-gray-300 mb-2">
-                  <strong>Date:</strong> {new Date(event.datetime).toLocaleString()}
+                  <strong>Date:</strong>{" "}
+                  {new Date(event.datetime).toLocaleString()}
                 </p>
                 <p className="text-gray-300 mb-2">
                   <strong>Location:</strong> {event.location}
@@ -72,9 +76,9 @@ function Approve() {
                   <strong>Status:</strong> {event.approval_status}
                 </p>
                 <p className="text-gray-300 mb-4">
-                  <strong>Tags:</strong> {event.tags.join(', ')}
+                  <strong>Tags:</strong> {event.tags.join(", ")}
                 </p>
-  
+
                 {/* Buttons to approve/reject */}
                 <div className="flex justify-end space-x-4">
                   <button

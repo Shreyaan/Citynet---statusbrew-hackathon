@@ -1,38 +1,41 @@
 // EventForm.jsx
-'use client';
-import { format } from "date-fns"
+"use client";
+import { format } from "date-fns";
 
-import { createClient } from '@/utils/supabase/client';
-import React, { useState } from 'react';
-import { BackgroundGradient } from '@/components/ui/background-gradient';
-import UserSidebar from '@/components/UserSidebar'; // Import the sidebar
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-
+import { createClient } from "@/utils/supabase/client";
+import React, { useState } from "react";
+import { BackgroundGradient } from "@/components/ui/background-gradient";
+import UserSidebar from "@/components/UserSidebar"; // Import the sidebar
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 function EventForm() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = React.useState<Date>()
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = React.useState<Date>();
 
-  const [location, setLocation] = useState('');
-  const [tags, setTags] = useState('');
+  const [location, setLocation] = useState("");
+  const [tags, setTags] = useState("");
   const [poster, setPoster] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('datetime', date ? date.toISOString() : '');
-    formData.append('location', location);
-    formData.append('tags', tags);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("datetime", date ? date.toISOString() : "");
+    formData.append("location", location);
+    formData.append("tags", tags);
     if (poster) {
-      formData.append('poster', poster);
+      formData.append("poster", poster);
     }
 
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -42,18 +45,18 @@ function EventForm() {
     const accessToken = session.data?.session?.access_token;
 
     const response = await fetch(`${BACKEND_URL}/events/create`, {
-      method: 'POST',
+      method: "POST",
       body: formData,
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
     const data = await response.json();
     if (data.success) {
-      alert('Event submitted successfully!');
+      alert("Event submitted successfully!");
     } else {
-      alert('Error submitting event.');
+      alert("Error submitting event.");
     }
   };
 
@@ -71,9 +74,10 @@ function EventForm() {
           before:p-[2px] before:bg-gradient-to-r before:from-purple-500 
           before:via-blue-500 before:to-green-500 before:z-[-1]"
         >
-
           <h2 className="text-white text-2xl mb-4 font-bold">Create Event</h2>
-          <p className="text-gray-400 mb-6">Deploy your new event in one click.</p>
+          <p className="text-gray-400 mb-6">
+            Deploy your new event in one click.
+          </p>
 
           {/* Title */}
           <div className="mb-4">
@@ -90,7 +94,9 @@ function EventForm() {
 
           {/* Description */}
           <div className="mb-4">
-            <label className="text-gray-400 block mb-2">Event Description</label>
+            <label className="text-gray-400 block mb-2">
+              Event Description
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -102,7 +108,9 @@ function EventForm() {
 
           {/* Date & Time */}
           <div className="mb-4">
-            <label className="text-gray-400 block mb-2">Event Date & Time</label>
+            <label className="text-gray-400 block mb-2">
+              Event Date & Time
+            </label>
             <div className="flex space-x-4">
               <Popover>
                 <PopoverTrigger asChild>
@@ -110,11 +118,11 @@ function EventForm() {
                     variant={"outline"}
                     className={cn(
                       "w-[280px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
+                      !date && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -159,7 +167,9 @@ function EventForm() {
             <label className="text-gray-400 block mb-2">Event Poster</label>
             <input
               type="file"
-              onChange={(e) => setPoster(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) =>
+                setPoster(e.target.files ? e.target.files[0] : null)
+              }
               className="w-full text-gray-400 bg-black p-3 rounded-md focus:outline-none"
               accept="image/*"
             />

@@ -1,5 +1,5 @@
 // src/components/Navbar.tsx
-import React from 'react';
+import React from "react";
 
 const Navbar: React.FC = () => {
   return (
