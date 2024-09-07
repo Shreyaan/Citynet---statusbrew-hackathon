@@ -1,14 +1,25 @@
-import { login, signup } from './actions'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import { GoogleAuthButton } from "./GoogleAuthButton";
 
 export default function LoginPage() {
-    return (
-        <form>
-            <label htmlFor="email">Email:</label>
-            <input id="email" name="email" type="email" required />
-            <label htmlFor="password">Password:</label>
-            <input id="password" name="password" type="password" required />
-            <button formAction={login}>Log in</button>
-            <button formAction={signup}>Sign up</button>
-        </form>
-    )
+  return (
+    <div className="flex justify-center items-center h-screen w-screen">
+      <Card className="mx-auto my-auto max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>Use google to login or sign up</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <GoogleAuthButton />
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
