@@ -15,6 +15,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { MultiSelect } from "@/components/MultiSelect";
+import tagOptions from "@/utils/tags";
 
 function EventForm() {
   const router = useRouter();
@@ -23,18 +25,36 @@ function EventForm() {
   const [date, setDate] = React.useState<Date>();
 
   const [location, setLocation] = useState("");
-  const [tags, setTags] = useState("");
+  // const [tags, setTags] = useState("");
   const [poster, setPoster] = useState<File | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = "Title is required";
+    if (!description.trim()) newErrors.description = "Description is required";
+    if (!date) newErrors.date = "Date is required";
+    if (!location.trim()) newErrors.location = "Location is required";
+    if (selectedTags.length === 0)
+      newErrors.tags = "At least one tag is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
     formData.append("datetime", date ? date.toISOString() : "");
     formData.append("location", location);
-    formData.append("tags", tags);
+    formData.append("tags", selectedTags.join(","));
     if (poster) {
       formData.append("poster", poster);
     }
@@ -42,25 +62,29 @@ function EventForm() {
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const client = createClient();
-    const session = await client.auth.getSession();
-    const accessToken = session.data?.session?.access_token;
+    const session = await client.auth.getUser();
+    const token = session.data?.user?.id;
 
-    const response = await fetch(`${BACKEND_URL}/events/create`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    try {
+      const response = await fetch(`${BACKEND_URL}/events/create`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    // {"event_id":7}
-
-    if (response.ok) {
-      router.push(`/viewevents/${data.event_id}`);
-    } else {
-      alert("Error submitting event.");
+      if (response.ok) {
+        router.push(`/viewevents/${data.event_id}`);
+      } else {
+        setErrors({ submit: "Error submitting event. Please try again." });
+      }
+    } catch (error) {
+      setErrors({ submit: "An unexpected error occurred. Please try again." });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -157,12 +181,12 @@ function EventForm() {
           {/* Tags */}
           <div className="mb-4">
             <label className="text-gray-400 block mb-2">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full p-3 bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
-              placeholder="Comma separated tags"
+            <MultiSelect
+              options={tagOptions}
+              selected={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Select up to 10 tags"
+              className="w-full bg-black text-gray-300 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent rounded-md"
             />
           </div>
 
@@ -184,14 +208,16 @@ function EventForm() {
             <button
               type="button"
               className="bg-gray-800 text-gray-400 py-2 px-4 rounded-md hover:bg-gray-700 transition"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition"
+              className="bg-white text-black py-2 px-6 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
+              disabled={isLoading}
             >
-              Upload
+              {isLoading ? "Uploading..." : "Upload"}
             </button>
           </div>
         </form>

@@ -28,13 +28,13 @@ export default function EventPage() {
     async function fetchEvent() {
       try {
         const client = createClient();
-        const session = await client.auth.getSession();
-        const accessToken = session.data?.session?.access_token;
+        const session = await client.auth.getUser();
+        const token = session.data?.user?.id;
 
         const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
         const response = await fetch(`${BACKEND_URL}/events/${event_id}`, {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
