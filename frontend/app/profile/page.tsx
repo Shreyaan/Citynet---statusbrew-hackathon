@@ -12,7 +12,7 @@ function ProfilePage() {
     email: "",
     name: "",
     phone_number: "",
-    tags: [] as string[],
+    tags: [] as string[] | null,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +66,7 @@ function ProfilePage() {
       isValid = false;
     }
 
-    if (profile.tags.length === 0) {
+    if (profile.tags && profile.tags.length === 0) {
       newErrors.tags = "Please select at least one tag";
       isValid = false;
     }
@@ -105,7 +105,7 @@ function ProfilePage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            tags: profile.tags.join(","),
+            tags: profile.tags ? profile.tags.join(",") : "",
             phone_number: profile.phone_number,
             name: profile.name,
           }),
@@ -154,14 +154,15 @@ function ProfilePage() {
                 {profile.phone_number || "No phone number"}
               </p>
               <div className="flex flex-wrap gap-2">
-                {profile.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
+                {profile.tags &&
+                  profile.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
               </div>
             </div>
 
@@ -210,7 +211,7 @@ function ProfilePage() {
                   <label className="text-gray-400 block mb-2">Tags</label>
                   <MultiSelect
                     options={tagOptions}
-                    selected={profile.tags}
+                    selected={profile.tags || []}
                     onChange={(tags) => setProfile({ ...profile, tags })}
                     placeholder="Select tags"
                     className="bg-black text-gray-300"
