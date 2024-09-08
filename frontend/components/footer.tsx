@@ -55,11 +55,11 @@ const Footer: React.FC = () => {
             <p className="text-gray-400">
               123 Smart City Blvd,
               <br />
-              Urban Solutions, AI District
+              New Delhi, India
               <br />
               Email: contact@smartcity.com
               <br />
-              Phone: +1 234 567 8901
+              Phone: +91 9876543210
             </p>
 
             {/* Social Media Icons */}

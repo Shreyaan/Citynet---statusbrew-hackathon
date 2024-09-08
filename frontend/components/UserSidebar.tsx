@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { FiUser, FiCalendar, FiAlertTriangle, FiLogOut } from "react-icons/fi";
+import {
+  FiUser,
+  FiCalendar,
+  FiAlertTriangle,
+  FiLogOut,
+  FiClipboard,
+} from "react-icons/fi";
+import { FaCar } from "react-icons/fa";
+import { RiLightbulbLine } from "react-icons/ri";
+import { IoWaterOutline } from "react-icons/io5";
 
 const UserSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -20,7 +29,6 @@ const UserSidebar = () => {
 
     fetchUserData();
   }, []);
-
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -75,7 +83,8 @@ const UserSidebar = () => {
         </div>
 
         <SidebarLink
-          icon={<FiCalendar />}
+          href="/parking"
+          icon={<FaCar />}
           label="Parking"
           isHovered={isHovered}
         />
@@ -83,6 +92,24 @@ const UserSidebar = () => {
           href="/emergencyreport"
           icon={<FiAlertTriangle />}
           label="Emergency Report"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/volunteer-application"
+          icon={<FiClipboard />}
+          label="Volunteer Application"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/electricity-usage"
+          icon={<RiLightbulbLine />}
+          label="Electricity Usage"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/water-usage"
+          icon={<IoWaterOutline />}
+          label="Water Usage"
           isHovered={isHovered}
         />
         <SidebarLink
@@ -95,7 +122,8 @@ const UserSidebar = () => {
 
       {/* User Profile Section */}
       <div className="flex items-center space-x-2">
-        {/* todo- use supabase provided url */}
+        {/* todo- use supabase providfed url */}
+
         <img
           src={avatarUrl || "https://via.placeholder.com/40"}
           alt="User"
