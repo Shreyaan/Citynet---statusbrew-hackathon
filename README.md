@@ -11,6 +11,8 @@
 
 C.I.T.Y N.E.T is an AI-powered solution for urban management and community engagement. It provides features for event management, emergency reporting, volunteer coordination, and smart city services like garbage collection notifications and electricity bill alerts. The system integrates IoT sensors to collect real-time data for efficient city management.
 
+Hosted link - https://citynet-statusbrew-hackathon.vercel.app/parking
+
 ## Tech Stack
 
 - **Frontend**: Next.js, React, TypeScript
