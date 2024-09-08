@@ -1,12 +1,15 @@
 from flask import Blueprint, jsonify, request, g
 from config import get_db_session
-from models import User, VolunteerForms, Events
+from models import User, VolunteerForms, Events, EventRspvs
 from sqlalchemy.exc import SQLAlchemyError
 import uuid
 
 from utils.twillo import send_sms
 
 volunteer_bp = Blueprint("volunteer_bp", __name__)
+
+# New EventRspvs Blueprint
+rsvp_bp = Blueprint("rsvp_bp", __name__)
 
 
 @volunteer_bp.route("/apply/<event_id>", methods=["POST"])
@@ -172,7 +175,6 @@ def approve_application(application_id):
         session.close()
 
 
-# New route to reject a volunteer application
 @volunteer_bp.route("/admin/reject/<application_id>", methods=["POST"])
 def reject_application(application_id):
     session = get_db_session()
@@ -187,6 +189,86 @@ def reject_application(application_id):
         return jsonify({"message": "Application rejected successfully"}), 200
     except SQLAlchemyError as e:
         session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@rsvp_bp.route("/<event_id>", methods=["POST"])
+def rsvp_for_event(event_id):
+    session = get_db_session()
+    try:
+        user_id = g.user_id
+        data = request.json
+        status = data.get(
+            "status", "attending"
+        )  # Default to attending if not specified
+
+        # Check if EventRspvs already exists
+        existing_rsvp = (
+            session.query(EventRspvs)
+            .filter_by(event_id=event_id, user_id=uuid.UUID(user_id))
+            .first()
+        )
+
+        if existing_rsvp:
+            existing_rsvp.status = status
+            message = "EventRspvs updated successfully"
+        else:
+            new_rsvp = EventRspvs(
+                event_id=event_id, user_id=uuid.UUID(user_id), status=status
+            )
+            session.add(new_rsvp)
+            message = "EventRspvs submitted successfully"
+
+        session.commit()
+        return jsonify({"message": message}), 200
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@rsvp_bp.route("/<event_id>", methods=["GET"])
+def get_event_rsvps(event_id):
+    session = get_db_session()
+    try:
+        rsvps = session.query(EventRspvs).filter_by(event_id=event_id).all()
+        rsvp_list = [
+            {
+                "id": rsvp.id,
+                "user_id": str(rsvp.user_id),
+                "status": rsvp.status,
+            }
+            for rsvp in rsvps
+        ]
+        return jsonify(rsvp_list), 200
+    except SQLAlchemyError as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@rsvp_bp.route("/my-rsvps", methods=["GET"])
+def get_user_rsvps():
+    session = get_db_session()
+    try:
+        user_id = g.user_id
+        rsvps = session.query(EventRspvs).filter_by(user_id=uuid.UUID(user_id)).all()
+        rsvp_list = [
+            {
+                "id": rsvp.id,
+                "event_id": rsvp.event_id,
+                "event_title": session.query(Events.title)
+                .filter_by(id=rsvp.event_id)
+                .scalar(),
+                "status": rsvp.status,
+            }
+            for rsvp in rsvps
+        ]
+        return jsonify(rsvp_list), 200
+    except SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
