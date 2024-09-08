@@ -18,6 +18,7 @@ function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [username, setUsername] = useState<string | null>(null);
   const [errors, setErrors] = useState({
     name: "",
@@ -141,7 +142,7 @@ function ProfilePage() {
             {/* Left column: User info */}
             <div className="flex-1">
               <img
-                src="/default-avatar.png"
+                src={avatarUrl || "https://via.placeholder.com/40"}
                 alt="Profile"
                 className="w-32 h-32 rounded-full mb-4"
               />
