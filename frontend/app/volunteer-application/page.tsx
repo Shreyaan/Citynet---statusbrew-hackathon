@@ -193,7 +193,7 @@ function VolunteerPage() {
     <div className="min-h-screen bg-black text-white flex">
       <UserSidebar />
 
-      <div className="flex-grow p-6">
+      <div className="flex-grow p-20 ml-20">
         <h1 className="text-2xl font-bold mb-6">Volunteer Applications</h1>
 
         {/* Application Form */}
