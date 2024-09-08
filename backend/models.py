@@ -281,6 +281,9 @@ class User(Base):
     water_usage: Mapped[List["WaterUsage"]] = relationship(
         "WaterUsage", uselist=True, back_populates="user"
     )
+    event_rspvs: Mapped[List["EventRspvs"]] = relationship(
+        "EventRspvs", uselist=True, back_populates="user"
+    )
     volunteer_forms: Mapped[List["VolunteerForms"]] = relationship(
         "VolunteerForms", uselist=True, back_populates="user"
     )
@@ -400,6 +403,9 @@ class Events(Base):
     user_id = mapped_column(Uuid)
 
     user: Mapped[Optional["User"]] = relationship("User", back_populates="events")
+    event_rspvs: Mapped[List["EventRspvs"]] = relationship(
+        "EventRspvs", uselist=True, back_populates="event"
+    )
     volunteer_forms: Mapped[List["VolunteerForms"]] = relationship(
         "VolunteerForms", uselist=True, back_populates="event"
     )
@@ -431,6 +437,42 @@ class WaterUsage(Base):
 
     sensor: Mapped["Sensor"] = relationship("Sensor", back_populates="water_usage")
     user: Mapped[Optional["User"]] = relationship("User", back_populates="water_usage")
+
+
+class EventRspvs(Base):
+    __tablename__ = "event_rspvs"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["event_id"], ["events.id"], name="event_rspvs_event_id_fkey"
+        ),
+        ForeignKeyConstraint(
+            ["user_id"], ["user.user_id"], name="event_rspvs_user_id_fkey"
+        ),
+        PrimaryKeyConstraint("id", name="event_rspvs_pkey"),
+    )
+
+    id = mapped_column(
+        BigInteger,
+        Identity(
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+    )
+    created_at = mapped_column(
+        DateTime(True), nullable=False, server_default=text("now()")
+    )
+    event_id = mapped_column(Integer)
+    user_id = mapped_column(Uuid)
+    status = mapped_column(Text)
+
+    event: Mapped[Optional["Events"]] = relationship(
+        "Events", back_populates="event_rspvs"
+    )
+    user: Mapped[Optional["User"]] = relationship("User", back_populates="event_rspvs")
 
 
 class VolunteerForms(Base):
