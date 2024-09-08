@@ -86,7 +86,7 @@ function VolunteerPage() {
       setIsEventsLoading(true);
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
       try {
-        const response = await fetch(`${BACKEND_URL}/volunteer/events/getall`, {
+        const response = await fetch(`${BACKEND_URL}/events/getall`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
