@@ -107,6 +107,7 @@ def get_user_applications():
                 .filter_by(id=app.event_id)
                 .scalar(),
                 "status": app.status,
+                "created_at": app.datetime,
                 "skills": app.skills,
                 "availability": app.availability,
             }
@@ -131,6 +132,9 @@ def get_pending_applications():
             {
                 "id": app.id,
                 "event_id": app.event_id,
+                "event_title": session.query(Events.title)
+                .filter_by(id=app.event_id)
+                .scalar(),
                 "user_id": str(app.user_id),
                 "email": app.email,
                 "phone_number": app.phone_number,
@@ -158,13 +162,20 @@ def approve_application(application_id):
             return jsonify({"error": "Application not found"}), 404
 
         application.status = "approved"
+
+        event_name = (
+            session.query(Events.title)
+            .filter(Events.id == application.event_id)
+            .scalar()
+        )
+
         session.commit()
 
         user = session.query(User).filter(User.user_id == application.user_id).first()
         if user and user.phone_number:
             send_sms(
                 user.phone_number,
-                f"You have been approved as a volunteer for {application.event_id}! Check it out on our website",
+                f"You have been approved as a volunteer for {event_name}! Check it out on our website",
             )
 
         return jsonify({"message": "Application approved successfully"}), 200

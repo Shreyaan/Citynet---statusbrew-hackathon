@@ -111,14 +111,11 @@ function VolunteerPage() {
 
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
       try {
-        const response = await fetch(
-          `${BACKEND_URL}/volunteer/user/dashboard/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const response = await fetch(`${BACKEND_URL}/user/dashboard/profile`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         const data = await response.json();
         setUserProfile({
           email: data.email || "",

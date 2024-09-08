@@ -6,6 +6,7 @@ import Sidebar from "@/components/sidebar";
 interface Application {
   id: number;
   event_id: number;
+  event_title: string;
   user_id: string;
   email: string;
   status: string;
@@ -120,7 +121,7 @@ function AdminVolunteerPage() {
                 className="bg-gray-800 p-4 rounded flex justify-between items-center"
               >
                 <div>
-                  <h3 className="font-semibold">Event ID: {app.event_id}</h3>
+                  <h3 className="font-semibold">Event : {app.event_title}</h3>
                   <p>Applicant: {app.email}</p>
                   <p>Phone: {app.phone_number}</p>
                   <p>Address: {app.address}</p>
