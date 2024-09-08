@@ -1,7 +1,6 @@
 // FeatureSection.tsx
 import React from "react";
 import Image from "next/image";
-import EventManagementImage from "../public/4.png"; // Replace with actual path
 
 const FeatureSection: React.FC = () => {
   return (
@@ -31,7 +30,7 @@ const FeatureSection: React.FC = () => {
         {/* Image Section */}
         <div className="lg:w-1/2">
           <Image
-            src={EventManagementImage}
+            src="/4.png"
             alt="Event Management"
             width={500} // Adjust based on your image size
             height={300} // Adjust based on your image size

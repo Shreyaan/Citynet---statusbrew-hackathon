@@ -1,14 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import EmergencyImage from "@/public/2.png"; // Ensure this path is correct
 
 const FeatureTwo: React.FC = () => {
   return (
     <section className="bg-black pr-20 pl-10 lg:flex items-center justify-between text-white">
       {/* Image Section */}
-      <div className="lg:w-1/2 relative h-[700px] pr-20"> {/* Adjust height as needed */}
+      <div className="lg:w-1/2 relative h-[700px] pr-20">
+        {" "}
+        {/* Adjust height as needed */}
         <Image
-          src={EmergencyImage}
+          src="/2.png"
           alt="Emergency Report Feature"
           fill
           style={{ objectFit: "cover" }}

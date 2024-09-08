@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import EmergencyImage from "../public/3.png";
 
 const FeatureFour: React.FC = () => {
   return (
@@ -10,7 +9,7 @@ const FeatureFour: React.FC = () => {
         {" "}
         {/* Adjust height as needed */}
         <Image
-          src={EmergencyImage}
+          src="/3.png"
           alt="Emergency Report Feature"
           fill
           style={{ objectFit: "cover" }}
