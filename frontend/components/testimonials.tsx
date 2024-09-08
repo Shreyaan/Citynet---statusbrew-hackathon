@@ -1,33 +1,35 @@
 // Testimonials.tsx
-import React from 'react';
+import React from "react";
 
 const testimonials = [
   {
-    name: "John Doe",
-    image: "/path-to-image1.jpg",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    name: "Sarah Johnson",
+    image: "/p1.jpg",
+    text: "This AI tool has revolutionized our workflow. It's intuitive, powerful, and has saved us countless hours on data analysis.",
   },
   {
-    name: "Jane Smith",
-    image: "/path-to-image2.jpg",
-    text: "Pellentesque ac justo nec libero ultrices sollicitudin a a enim.",
+    name: "Michael Chen",
+    image: "/p2.jpg",
+    text: "I'm impressed by the accuracy and speed of this AI solution. It's become an indispensable part of our decision-making process.",
   },
   {
-    name: "Alice Johnson",
-    image: "/path-to-image3.jpg",
-    text: "Cras nec purus nec neque sodales aliquet in at erat.",
+    name: "Emily Rodriguez",
+    image: "/p3.jpg",
+    text: "The customer support is exceptional. They've been incredibly responsive and helpful in tailoring the AI to our specific needs.",
   },
   {
-    name: "Leo Stanlee",
-    image: "/path-to-image4.jpg",
-    text: "Vestibulum ante ipsum primis in faucibus orci luctus et.",
+    name: "David Patel",
+    image: "/p4.jpg",
+    text: "The customer support is exceptional. They've been incredibly responsive and helpful in tailoring the AI to our specific needs.",
   },
 ];
 
 const Testimonials: React.FC = () => {
   return (
     <section className="bg-black py-16 overflow-hidden">
-      <h2 className="text-white text-center text-4xl font-bold mb-10">What People Say About Us</h2>
+      <h2 className="text-white text-center text-4xl font-bold mb-10">
+        What People Say About Us
+      </h2>
       <div className="relative w-full overflow-hidden">
         {/* Duplicating the testimonial row to create infinite scroll */}
         <div className="flex animate-marquee space-x-8">
@@ -49,7 +51,7 @@ const Testimonials: React.FC = () => {
           {/* Duplicate the testimonials to ensure seamless looping */}
           {testimonials.map((testimonial, index) => (
             <div
-              key={index + testimonials.length}  // Avoid key conflicts
+              key={index + testimonials.length} // Avoid key conflicts
               className="min-w-[300px] bg-gray-800 text-white p-6 rounded-lg shadow-lg text-center"
             >
               <img

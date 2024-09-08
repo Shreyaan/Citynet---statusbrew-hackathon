@@ -16,7 +16,9 @@ function ProfilePage() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true); // New state for fetching
+  const [isFetching, setIsFetching] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [errors, setErrors] = useState({
     name: "",
     phone_number: "",
@@ -71,7 +73,17 @@ function ProfilePage() {
     setErrors(newErrors);
     return isValid;
   };
-
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const client = createClient();
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      setAvatarUrl(user?.user_metadata?.avatar_url || null);
+      setUsername(user?.user_metadata.email || null);
+    };
+    fetchUserData();
+  }, []);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -122,23 +134,36 @@ function ProfilePage() {
   return (
     <div className="flex min-h-screen bg-black">
       <UserSidebar />
-      <div className="flex-grow p-6">
+      <div className="flex-1 p-6 overflow-y-auto ml-20">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
           <h2 className="text-white text-3xl mb-6 font-bold">User Profile</h2>
           <div className="flex flex-col md:flex-row gap-8">
             {/* Left column: User info */}
             <div className="flex-1">
-              <img src="/default-avatar.png" alt="Profile" className="w-32 h-32 rounded-full mb-4" />
-              <h3 className="text-white text-xl font-semibold mb-2">{profile.name || "User"}</h3>
+              <img
+                src="/default-avatar.png"
+                alt="Profile"
+                className="w-32 h-32 rounded-full mb-4"
+              />
+              <h3 className="text-white text-xl font-semibold mb-2">
+                {profile.name || "User"}
+              </h3>
               <p className="text-gray-400 mb-1">{profile.email}</p>
-              <p className="text-gray-400 mb-4">{profile.phone_number || "No phone number"}</p>
+              <p className="text-gray-400 mb-4">
+                {profile.phone_number || "No phone number"}
+              </p>
               <div className="flex flex-wrap gap-2">
-                {profile.tags.map(tag => (
-                  <span key={tag} className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm">{tag}</span>
+                {profile.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm"
+                  >
+                    {tag}
+                  </span>
                 ))}
               </div>
             </div>
-            
+
             {/* Right column: Editable form */}
             <div className="flex-1">
               <form onSubmit={handleSubmit}>
@@ -165,7 +190,9 @@ function ProfilePage() {
                   )}
                 </div>
                 <div className="mb-4">
-                  <label className="text-gray-400 block mb-2">Phone Number</label>
+                  <label className="text-gray-400 block mb-2">
+                    Phone Number
+                  </label>
                   <Input
                     value={profile.phone_number || ""}
                     onChange={(e) =>

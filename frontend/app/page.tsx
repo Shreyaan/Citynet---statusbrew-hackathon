@@ -33,8 +33,7 @@ const Home: React.FC = () => {
           </p>
 
           {/* Discover Button */}
-          <button className="px-6 py-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition">
-            Discover more
+          <button className="px-6 py-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition">            Discover more
           </button>
         </div>
         <div className="bg-black text-white">
