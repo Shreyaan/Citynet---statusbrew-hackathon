@@ -264,6 +264,7 @@ def get_user_rsvps():
                 .filter_by(id=rsvp.event_id)
                 .scalar(),
                 "status": rsvp.status,
+                "created_at": rsvp.created_at,
             }
             for rsvp in rsvps
         ]
