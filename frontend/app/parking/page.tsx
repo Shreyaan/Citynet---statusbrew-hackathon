@@ -20,7 +20,8 @@ const ParkingPage = () => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (fetchCountRef.current < 10) {
+      // 100 is the maximum number of times the fetchParkingStatus function will be called so it will be active for 100 * 3 seconds = 5 minutes
+      if (fetchCountRef.current < 100) {
         fetchParkingStatus();
         fetchCountRef.current += 1;
       } else {
