@@ -160,8 +160,8 @@ def approve_application(application_id):
         application.status = "approved"
         session.commit()
 
-        user: User = session.query(User).get(application.user_id)
-        if user.phone_number:
+        user = session.query(User).filter(User.user_id == application.user_id).first()
+        if user and user.phone_number:
             send_sms(
                 user.phone_number,
                 f"You have been approved as a volunteer for {application.event_id}! Check it out on our website",
