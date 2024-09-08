@@ -183,6 +183,9 @@ class Sensor(Base):
     )
     sensor_name = mapped_column(Text, nullable=False)
 
+    ParkingLot: Mapped[List["ParkingLot"]] = relationship(
+        "ParkingLot", uselist=True, back_populates="sensor"
+    )
     emergency_fire_logs: Mapped[List["EmergencyFireLogs"]] = relationship(
         "EmergencyFireLogs", uselist=True, back_populates="sensor"
     )
@@ -198,6 +201,34 @@ class Sensor(Base):
     water_usage: Mapped[List["WaterUsage"]] = relationship(
         "WaterUsage", uselist=True, back_populates="sensor"
     )
+
+
+class ParkingLot(Base):
+    __tablename__ = "ParkingLot"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["sensor_id"], ["sensor.sensor_name"], name="ParkingLot_sensor_id_fkey"
+        ),
+        PrimaryKeyConstraint("id", name="ParkingLot_pkey"),
+    )
+
+    id = mapped_column(
+        BigInteger,
+        Identity(
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+    )
+    sensor_id = mapped_column(Text, nullable=False)
+    location = mapped_column(String)
+    status = mapped_column(Boolean, server_default=text("true"))
+    last_updated = mapped_column(DateTime)
+
+    sensor: Mapped["Sensor"] = relationship("Sensor", back_populates="ParkingLot")
 
 
 class EmergencyFireLogs(Base):

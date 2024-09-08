@@ -54,7 +54,7 @@ def trigger_emergency_response(
         message_text = (
             f"Emergency response triggered for {emergency_type} at {location}, "
             f"fire hazard level: {fire_hazard_level}, smoke level: {smoke_level}, "
-            f"temperature: {temp_level}"
+            f"temperature index: {temp_level} PLEASE RESPOND IMMEDIATELY"
         )
     else:
         message_text = f"Triggering response for {emergency_type} at {location}"

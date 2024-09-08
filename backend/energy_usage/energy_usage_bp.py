@@ -1,24 +1,20 @@
 import os
 import uuid
-
-# import razorpay
 from flask import Blueprint, jsonify, request, make_response
 from datetime import datetime, timedelta
 from config import get_db_session
 from models import Sensor, EnergyUsage
 
-RAZORPAY_KEY = os.getenv("RAZORPAY_KEY")
-RAZORPAY_SECRET = os.getenv("RAZORPAY_SECRET")
-
-# razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY, RAZORPAY_SECRET))
-
 # Create a Blueprint for energy usage routes
 energy_usage_bp = Blueprint("energy_usage_bp", __name__)
-
 
 # Route to record energy usage
 @energy_usage_bp.route("/record-usage", methods=["POST"])
 def record_energy_usage():
+    """
+    Record energy usage from a sensor.
+    Expects sensor_name, usage_kwh, and user_id in the request body.
+    """
     data = request.json
     sensor_name = data.get("sensor_name")
     usage_kwh = data.get("usage_kwh")
@@ -57,6 +53,10 @@ def record_energy_usage():
 # Route to fetch energy usage for a specific month
 @energy_usage_bp.route("/usage/<int:year>/<int:month>", methods=["GET"])
 def get_monthly_energy_usage(year, month):
+    """
+    Fetch energy usage for a specific month for a user.
+    Expects user_id as a query parameter.
+    """
     user_id = request.args.get("user_id")  # Assuming user ID is passed as query param
     session = get_db_session()
 
@@ -75,15 +75,11 @@ def get_monthly_energy_usage(year, month):
         )
 
         total_usage = sum(record.usage_kwh for record in usage_records)
-        total_bill = (
-            total_usage * 100
-        )  # Assuming 1 dollar per unit, multiplied by 100 for INR (paise)
 
         return (
             jsonify(
                 {
                     "total_usage_kwh": total_usage,
-                    "total_bill": total_bill,
                     "usage_records": [
                         {
                             "date": record.timestamp.strftime("%Y-%m-%d"),
@@ -102,9 +98,13 @@ def get_monthly_energy_usage(year, month):
         session.close()
 
 
-# Route to handle Razorpay payment for energy bill
+# Route to handle the energy bill calculation for a specific month
 @energy_usage_bp.route("/pay-bill/<int:year>/<int:month>", methods=["POST"])
 def pay_bill(year, month):
+    """
+    Calculate the total bill for a given month for a user.
+    Expects user_id in the request body.
+    """
     user_id = request.json.get("user_id")
     session = get_db_session()
 
@@ -126,24 +126,19 @@ def pay_bill(year, month):
         total_usage = sum(record.usage_kwh for record in usage_records)
         total_bill = total_usage * 100  # Assuming 1 dollar per unit, converted to INR
 
-        # Create Razorpay order
-        # payment = razorpay_client.order.create(
-        #     {
-        #         "amount": int(total_bill * 100),  # Convert to paise (1 INR = 100 paise)
-        #         "currency": "INR",
-        #         "payment_capture": "1",  # Auto capture after successful payment
-        #     }
-        # )
-
-        # Return payment details as JSON for React frontend
+        # Return usage and bill details
         return (
             jsonify(
                 {
-                    "order_id": None,
-                    "amount": None,
-                    "currency": None,
-                    "razorpay_key": RAZORPAY_KEY,
+                    "total_usage_kwh": total_usage,
                     "total_bill": total_bill,
+                    "usage_records": [
+                        {
+                            "date": record.timestamp.strftime("%Y-%m-%d"),
+                            "usage_kwh": record.usage_kwh,
+                        }
+                        for record in usage_records
+                    ],
                 }
             ),
             200,
