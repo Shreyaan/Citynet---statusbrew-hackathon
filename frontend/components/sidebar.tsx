@@ -1,10 +1,31 @@
 // Sidebar.jsx
-import React, { useState } from "react";
-import { FiUser, FiCheckCircle, FiLogOut } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import {
+  FiUser,
+  FiCheckCircle,
+  FiLogOut,
+  FiAlertCircle,
+  FiUsers,
+} from "react-icons/fi";
+import { createClient } from "@/utils/supabase/client";
 
 const Sidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const client = createClient();
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      setAvatarUrl(user?.user_metadata?.avatar_url || null);
+      setUsername(user?.user_metadata.email || null);
+    };
+
+    fetchUserData();
+  }, []);
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -17,7 +38,7 @@ const Sidebar = () => {
       <div className="flex items-center space-x-2">
         <div className="bg-white rounded-full p-2">
           <img
-            src="https://via.placeholder.com/40" // Replace this with your logo
+            src={avatarUrl || "https://via.placeholder.com/40"}
             alt="Logo"
             className="rounded-full"
             width={40}
@@ -42,6 +63,18 @@ const Sidebar = () => {
           isHovered={isHovered}
         />
         <SidebarLink
+          href="/admin-emergency-reports"
+          icon={<FiAlertCircle />}
+          label="Admin Emergency Reports"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/admin-volunteer-management"
+          icon={<FiUsers />}
+          label="Admin Volunteer Management"
+          isHovered={isHovered}
+        />
+        <SidebarLink
           href="/home"
           icon={<FiLogOut />}
           label="Logout"
@@ -52,13 +85,13 @@ const Sidebar = () => {
       {/* User Profile Section */}
       <div className="flex items-center space-x-2">
         <img
-          src="https://via.placeholder.com/40" // Replace this with your avatar image
+          src={avatarUrl || "https://via.placeholder.com/40"}
           alt="User"
           className="rounded-full"
           width={40}
           height={40}
         />
-        {isHovered && <span className="text-white">Sahil Chabra</span>}
+        {isHovered && <span className="text-white">{username}</span>}
       </div>
     </div>
   );

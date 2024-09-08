@@ -1,24 +1,46 @@
-// Sidebar.jsx
-import React, { useState } from "react";
-import { FiUser, FiCalendar, FiAlertTriangle, FiLogOut } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+import {
+  FiUser,
+  FiCalendar,
+  FiAlertTriangle,
+  FiLogOut,
+  FiClipboard,
+} from "react-icons/fi";
+import { FaCar } from "react-icons/fa";
+import { RiLightbulbLine } from "react-icons/ri";
+import { IoWaterOutline } from "react-icons/io5";
 
 const UserSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isEventsHovered, setIsEventsHovered] = useState(false); // State for hovering over Events link
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const client = createClient();
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+      setAvatarUrl(user?.user_metadata?.avatar_url || null);
+      setUsername(user?.user_metadata.email || null);
+    };
+
+    fetchUserData();
+  }, []);
   return (
-    <div 
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`bg-gray-800 h-screen flex flex-col justify-between p-4 ${isHovered ? "w-64" : "w-20"} transition-all duration-300`}  
+      className={`bg-gray-800 fixed top-0 left-0 h-screen flex flex-col justify-between p-4 ${isHovered ? "w-64" : "w-20"} transition-all duration-300`}
     >
       {/* Logo Section */}
       <div className="flex items-center space-x-2">
         <div className="bg-white rounded-full p-2">
-          {/* todo- use supabase providfed url */}
-
+          {/* todo- use supabase provided url */}
           <img
-            src="https://via.placeholder.com/40"
+            src={avatarUrl || "https://via.placeholder.com/40"}
             alt="Logo"
             className="rounded-full"
             width={40}
@@ -32,7 +54,12 @@ const UserSidebar = () => {
 
       {/* Links Section */}
       <nav className="flex flex-col space-y-4">
-        <SidebarLink href="/profile" icon={<FiUser />} label="Profile" isHovered={isHovered} />
+        <SidebarLink
+          href="/profile"
+          icon={<FiUser />}
+          label="Profile"
+          isHovered={isHovered}
+        />
 
         {/* Events link with sub-links */}
         <div
@@ -56,7 +83,8 @@ const UserSidebar = () => {
         </div>
 
         <SidebarLink
-          icon={<FiCalendar />}
+          href="/parking"
+          icon={<FaCar />}
           label="Parking"
           isHovered={isHovered}
         />
@@ -64,6 +92,24 @@ const UserSidebar = () => {
           href="/emergencyreport"
           icon={<FiAlertTriangle />}
           label="Emergency Report"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/volunteer-application"
+          icon={<FiClipboard />}
+          label="Volunteer Application"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/electricity-usage"
+          icon={<RiLightbulbLine />}
+          label="Electricity Usage"
+          isHovered={isHovered}
+        />
+        <SidebarLink
+          href="/water-usage"
+          icon={<IoWaterOutline />}
+          label="Water Usage"
           isHovered={isHovered}
         />
         <SidebarLink
@@ -79,13 +125,13 @@ const UserSidebar = () => {
         {/* todo- use supabase providfed url */}
 
         <img
-          src="https://via.placeholder.com/40"
+          src={avatarUrl || "https://via.placeholder.com/40"}
           alt="User"
           className="rounded-full"
           width={40}
           height={40}
         />
-        {isHovered && <span className="text-white">Manu Arora</span>}
+        {isHovered && <span className="text-white">{username}</span>}
       </div>
     </div>
   );

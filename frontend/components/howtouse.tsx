@@ -1,7 +1,6 @@
 // HowToUse.tsx
 import React from "react";
 import Image from "next/image";
-import SampleImage from "../public/bg_website[1].png"; // Replace with actual path
 
 const HowToUse: React.FC = () => {
   return (
@@ -22,7 +21,7 @@ const HowToUse: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="w-10 h-10 bg-red-400 rounded-full"></div>
             <div>
-              <h3 className="text-xl font-semibold">Join Communities</h3>
+              <h3 className="text-xl font-semibold">Join Events</h3>
               <p className="text-white">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </p>
@@ -42,7 +41,7 @@ const HowToUse: React.FC = () => {
         {/* Image Section */}
         <div className="lg:w-1/2 mt-10 lg:mt-0">
           <Image
-            src={SampleImage}
+            src="/how.png"
             alt="How to Use"
             width={500}
             height={300}

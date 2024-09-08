@@ -50,7 +50,7 @@ function ViewEvents() {
       <UserSidebar />
 
       {/* Main content container */}
-      <div className="flex-grow p-6">
+      <div className="flex-grow p-6 ml-20">
         <h1 className="text-3xl font-bold mb-6">Available Events</h1>
         {loading ? (
           <div className="flex justify-center items-center h-64">
