@@ -1,40 +1,61 @@
 import uuid
-from flask import Blueprint, jsonify, request, make_response, g
+from flask import Blueprint, jsonify, request, g
+from flask_jwt_extended import jwt_required
 from config import get_db_session
-from auth.jwt_bp import jwt_required
 from models import User
 
-# Create a Blueprint for user routes
-user_bp = Blueprint('user_bp', __name__)
+user_bp = Blueprint("user_bp", __name__)
 
-# Route to update user tags
-@user_bp.route('/tags', methods=['GET'])
-@jwt_required  # Require JWT authentication
-def update_user_tags():
-    # Retrieve the current user's ID from the session (g)
+
+@user_bp.route("/edit", methods=["PUT"])
+def edit_user():
     user_id = g.user_id
+    tags_str = request.json.get("tags")
+    phone_number = request.json.get("phone_number")
 
-    # Get the tags from the form request
-    tags_str = request.form.get("tags")
-    tags = [tag.strip() for tag in tags_str.split(",")] if tags_str else []  # Process tags
+    tags = [tag.strip() for tag in tags_str.split(",")] if tags_str else []
 
-    session = get_db_session()  # Get the database session
+    session = get_db_session()
     try:
-        # Fetch the user by user_id
         user = session.query(User).filter_by(user_id=uuid.UUID(user_id)).first()
-
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        # Update the user's tags field with the new tags
-        user.tags = tags
+        if tags:
+            user.tags = tags
+        if phone_number:
+            user.phone_number = phone_number
 
-        # Commit the changes to the database
         session.commit()
-
-        return jsonify({"message": "Tags updated successfully"}), 200
+        return jsonify({"message": "User information updated successfully"}), 200
     except Exception as e:
-        session.rollback()  # Rollback the session on error
+        session.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
-        session.close()  # Close the session
+        session.close()
+
+
+@user_bp.route("/profile", methods=["GET"])
+def get_user_profile():
+    user_id = g.user_id
+    session = get_db_session()
+    try:
+        user = session.query(User).filter_by(user_id=uuid.UUID(user_id)).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        return (
+            jsonify(
+                {
+                    "email": user.email,
+                    "name": user.name,
+                    "tags": user.tags,
+                    "phone_number": user.phone_number,
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()

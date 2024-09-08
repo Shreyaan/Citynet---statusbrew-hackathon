@@ -18,6 +18,7 @@ function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [username, setUsername] = useState<string | null>(null);
   const [errors, setErrors] = useState({
     name: "",

@@ -2,19 +2,22 @@ import uuid
 from flask import Blueprint, g, jsonify, request, make_response
 from config import db, get_db_session, engine
 from datetime import datetime
-from auth.jwt_bp import jwt_required
+from flask_jwt_extended import jwt_required
 import os
 from models import User, Events
 from utils.r2 import delete_file_from_r2, generate_presigned_url, upload_file_to_r2
 from sqlalchemy import UUID, func
+
+from utils.twillo import send_sms
 
 # Blueprint for the event routes
 event_bp = Blueprint("event_bp", __name__)
 
 
 # Test API endpoint to ensure the JWT authentication is working
+
+
 @event_bp.route("/api/test_event", methods=["GET"])
-@jwt_required
 def feature_route():
     # Return a simple JSON response
     return (
@@ -32,8 +35,9 @@ def generate_unique_filename(original_filename):
 
 
 # Route to create a new event
+
+
 @event_bp.route("/create", methods=["POST"])
-@jwt_required
 def create_event():
     # Get the current user ID from the JWT token
     user_id = g.user_id
@@ -92,19 +96,19 @@ def create_event():
         session.close()
 
 
-@event_bp.route("/", methods=["GET"])
-@jwt_required
+@event_bp.route("/getall", methods=["GET"])
 def get_user_events():
     session = get_db_session()
     try:
         user_id = g.user_id
+        print(user_id)
         events = session.query(Events).filter_by(approval_status="approved").all()
         events_list = [
             {
                 "id": event.id,
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime,
+                "datetime": event.datetime.isoformat(),  # Convert to ISO format string
                 "location": event.location,
                 "tags": event.tags,
                 "poster_url": (
@@ -125,7 +129,7 @@ def get_user_events():
         session.close()
 
 
-@event_bp.route("/event/<event_id>", methods=["GET"])
+@event_bp.route("/<event_id>", methods=["GET"])
 def get_event(event_id):
     session = get_db_session()
     try:
@@ -137,7 +141,7 @@ def get_event(event_id):
             "id": event.id,
             "title": event.title,
             "description": event.description,
-            "datetime": event.datetime,
+            "datetime": event.datetime.isoformat(),  # Convert to ISO format string
             "location": event.location,
             "tags": event.tags,
             "poster_url": (
@@ -158,7 +162,7 @@ def get_event(event_id):
         session.close()
 
 
-@event_bp.route("/event/<event_id>", methods=["DELETE"])
+@event_bp.route("/<event_id>", methods=["DELETE"])
 def delete_event(event_id):
     session = get_db_session()
     try:
@@ -181,55 +185,55 @@ def delete_event(event_id):
 
 
 # Route to get all events
-@jwt_required
+
+
 @event_bp.route("/admin", methods=["GET"])
 def get_all_events():
     session = get_db_session()
     try:
-        # Query all events from the database
         events = session.query(Events).all()
-
-        # Create a list of event dictionaries for the response
         events_list = [
             {
-                "id": str(event.id),  # Convert UUID to string
+                "id": str(event.id),
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime.isoformat(),  # Convert datetime to ISO format string
+                "datetime": event.datetime.isoformat(),
                 "location": event.location,
                 "tags": event.tags,
-                "poster_filename": event.poster_filename,
-                "user_id": str(event.user_id),  # Convert UUID to string
+                "poster_url": (
+                    generate_presigned_url(event.poster_filename)
+                    if event.poster_filename
+                    else None
+                ),
+                "user_id": str(event.user_id),
                 "approval_status": event.approval_status,
             }
             for event in events
         ]
-        return jsonify(events_list), 200  # Return the list of events as JSON
+        return jsonify(events_list), 200
     except Exception as e:
-        session.rollback()  # Rollback in case of an error
-        return jsonify({"error": str(e)}), 500  # Return an error response
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
     finally:
-        session.close()  # Close the session
+        session.close()
 
 
 # Route to get all pending events (those with 'pending' status)
-@jwt_required
+
+
 @event_bp.route("/admin/pending", methods=["GET"])
 def get_pending_events():
-    session = get_db_session()  # Get the database session
+    session = get_db_session()
     try:
-        # Query for events with the 'pending' status
         pending_events = (
             session.query(Events).filter_by(approval_status="pending").all()
         )
-
-        # Create a list of event dictionaries for the response
         events_list = [
             {
                 "id": event.id,
                 "title": event.title,
                 "description": event.description,
-                "datetime": event.datetime,
+                "datetime": event.datetime.isoformat(),
                 "location": event.location,
                 "tags": event.tags,
                 "poster_url": (
@@ -242,15 +246,14 @@ def get_pending_events():
             for event in pending_events
         ]
 
-        return jsonify(events_list), 200  # Return the list of pending events
+        return jsonify(events_list), 200
     except Exception as e:
-        session.rollback()  # Rollback in case of an error
-        return jsonify({"error": str(e)}), 500  # Return an error response
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
     finally:
         session.close()
 
 
-@jwt_required
 @event_bp.route("/admin/approve/<event_id>", methods=["POST"])
 def approve_event(event_id):
     session = get_db_session()
@@ -266,12 +269,36 @@ def approve_event(event_id):
 
         # Log or process the users with matching tags
         for user in users_with_matching_tags:
-            print(f"User {user.name} ({user.email}) matches event tags")
+            print(f"User {user.name} ({user.phone_number}) matches event tags")
+            if user.phone_number:
+                send_sms(
+                    user.phone_number,
+                    f"We Found an event for you {event.title}! Check it out on our website",
+                )
 
         event.approval_status = "approved"
         session.commit()
 
         return jsonify({"message": "Event approved successfully"}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@event_bp.route("/admin/reject/<event_id>", methods=["POST"])
+def reject_event(event_id):
+    session = get_db_session()
+    try:
+        event = session.query(Events).get(event_id)
+        if not event:
+            return jsonify({"error": "Event not found"}), 404
+
+        event.approval_status = "rejected"
+        session.commit()
+
+        return jsonify({"message": "Event rejected successfully"}), 200
     except Exception as e:
         session.rollback()
         return jsonify({"error": str(e)}), 500

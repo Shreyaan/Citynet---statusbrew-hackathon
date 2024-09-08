@@ -1,6 +1,12 @@
 // Sidebar.jsx
 import React, { useState, useEffect } from "react";
-import { FiUser, FiCheckCircle, FiLogOut, FiAlertCircle, FiUsers } from "react-icons/fi";
+import {
+  FiUser,
+  FiCheckCircle,
+  FiLogOut,
+  FiAlertCircle,
+  FiUsers,
+} from "react-icons/fi";
 import { createClient } from "@/utils/supabase/client";
 
 const Sidebar = () => {
@@ -60,7 +66,6 @@ const Sidebar = () => {
           href="/admin-emergency-reports"
           icon={<FiAlertCircle />}
           label="Admin Emergency Reports"
-
           isHovered={isHovered}
         />
         <SidebarLink
